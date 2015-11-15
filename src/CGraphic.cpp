@@ -105,8 +105,6 @@ bool CGraphic::SetVertexAttribPointer(const CVertexAttribArray& attribArray, int
 
 	glBindBuffer(GL_ARRAY_BUFFER, attribArray.GetAttribBufferID());
 
-	std::cout << attribArray.GetAttribBufferID();
-
 	glVertexAttribPointer(
 		layoutIndex,					// Атрибут 0. Подробнее об этом будет рассказано в части, посвященной шейдерам.
 		attribArray.GetAttribSize(),	// Размер
@@ -115,8 +113,6 @@ bool CGraphic::SetVertexAttribPointer(const CVertexAttribArray& attribArray, int
 		0,								// Шаг
 		(void*)0						// Смещение массива в буфере
 	);
-
-	std::cout << attribArray.GetAttribBufferID();
 
 	if (glGetError() != GL_NO_ERROR)
 		return false;
