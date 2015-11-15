@@ -9,15 +9,7 @@
 #include "CGraphic.h"
 #include "CVertexAttribArray.h"
 
-int main(int argc, char *argv[])
-{
-	CGraphic graphic;
-
-	graphic.Init("OpenGL + SDL", 800, 600, false);
-
-	std::cout << glGetString(GL_VERSION) << std::endl;
-
-	// Массив из 3 векторов, которые являются вершинами треугольника
+// Массив из 3 векторов, которые являются вершинами треугольника
 	static const GLfloat vertexBufferData[] = {
 		-1.0f,-1.0f,-1.0f, // Треугольник 1 : начало
 		-1.0f,-1.0f, 1.0f,
@@ -96,6 +88,14 @@ int main(int argc, char *argv[])
 		0.982f,  0.099f,  0.879f
  	};
 
+int main(int argc, char *argv[])
+{
+	CGraphic graphic;
+
+	graphic.Init("OpenGL + SDL", 800, 600, false);
+
+	std::cout << glGetString(GL_VERSION) << std::endl;
+
 	GLuint programID = LoadShaders("fx/VertexShader.glsl", "fx/FragmentShader.glsl");
 
 	glUseProgram(programID);
@@ -114,31 +114,6 @@ int main(int argc, char *argv[])
  	bufferData = (char*)colorBuffer.Lock();
 
  	memcpy(bufferData, colorBufferData, sizeof(colorBufferData));
-	std::cout << "!!!!!!!!!!\n";
-
- 	if (!colorBuffer.Unlock())
- 		std::cout << "xxx\n";
-
-	std::cout << "!!!!!!!!!!\n";
-
-	// Устанавливаем наш шейдер текущим
-
-	// Это будет идентификатором нашего буфера вершин
-	/*GLuint vertexBuffer;
-	GLuint colorBuffer;
-
-	// Создадим 1 буфер и поместим в переменную vertexbuffer его идентификатор
-	glGenBuffers(1, &vertexBuffer);
-
-	// Сделаем только что созданный буфер текущим
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-
-	// Передадим информацию о вершинах в OpenGL
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexBufferData), vertexBufferData, GL_STATIC_DRAW);
-
-	glGenBuffers(1, &colorBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(colorBufferData), colorBufferData, GL_STATIC_DRAW);*/
 
 	// Setting matrix
 	glm::mat4 matProjection = glm::perspective(
@@ -159,32 +134,7 @@ int main(int argc, char *argv[])
 
 	glUniformMatrix4fv(shaderMatrixId, 1, GL_FALSE, &matMVP[0][0]);
 
-	// Указываем, что первым буфером атрибутов будут вершины
 	glEnableVertexAttribArray(0);
-
-	std::cout << "!!!!!!!!!!\n";
-	/*glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-	glVertexAttribPointer(
-		0,                  // Атрибут 0. Подробнее об этом будет рассказано в части, посвященной шейдерам.
-		3,                  // Размер
-		GL_FLOAT,           // Тип
-		GL_FALSE,           // Указывает, что значения не нормализованы
-		0,                  // Шаг
-		(void*)0            // Смещение массива в буфере
-	);
-
-	glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-	glVertexAttribPointer(
-	    1,                  // Атрибут. Здесь необязательно указывать 1, но главное, чтобы это значение совпадало с layout в шейдере..
-	    3,                  // Размер
-	    GL_FLOAT,           // Тип
-	    GL_FALSE,           // Нормализован?
-	    0,                  // Шаг
-	    (void*)0            // Смещение
-	);
-
-	glEnableVertexAttribArray(2);
-	glEnableVertexAttribArray(3);*/
 
 	graphic.SetVertexAttribPointer(vertexBuffer, 0);
 
@@ -192,7 +142,7 @@ int main(int argc, char *argv[])
 
 	graphic.SetVertexAttribPointer(colorBuffer, 1);
 
-	// Вывести треугольник!
+	// Вывести кубик!
 	glDrawArrays(GL_TRIANGLES, 0, 6 * 2 * 3); // Начиная с вершины 0, всего 3 вершины -> один треугольник
 
 	graphic.SwapBuffres();
