@@ -8,6 +8,7 @@
 
 #include "CGraphic.h"
 #include "CVertexAttribArray.h"
+#include "CInput.h"
 
 // Массив из 3 векторов, которые являются вершинами треугольника
 static const GLfloat vertexBufferData[] = {
@@ -86,7 +87,20 @@ static const GLfloat vertexBufferData[] = {
 	0.673f,  0.211f,  0.457f,
 	0.820f,  0.883f,  0.371f,
 	0.982f,  0.099f,  0.879f
-	};
+};
+
+/*class CShaderProgram
+{
+	enum EShaderType
+	{
+		ST_VERTEX,
+		ST_FRAGMENT
+	}
+
+
+
+	GLuint vertexShaderID;
+};*/
 
 int main(int argc, char *argv[])
 {
@@ -96,7 +110,7 @@ int main(int argc, char *argv[])
 
 	std::cout << glGetString(GL_VERSION) << std::endl;
 
-
+	CInput input;
 
 	GLuint programID = LoadShaders("fx/VertexShader.glsl", "fx/FragmentShader.glsl");
 
@@ -138,13 +152,10 @@ int main(int argc, char *argv[])
 
 	glUniformMatrix4fv(shaderMatrixId, 1, GL_FALSE, &matMVP[0][0]);
 
-	// Указываем, что первым буфером атрибутов будут вершины
 	glEnableVertexAttribArray(0);
-
+	glEnableVertexAttribArray(1);
 
 	graphic.SetVertexAttribPointer(vertexBuffer, 0);
-
-	glEnableVertexAttribArray(1);
 
 	graphic.SetVertexAttribPointer(colorBuffer, 1);
 
@@ -153,7 +164,9 @@ int main(int argc, char *argv[])
 
 	graphic.SwapBuffres();
 
-	SDL_Delay(1000);
+	while (input.Update() && !input.IsKeyPressed(SDL_SCANCODE_SPACE))
+		SDL_Delay(1);
+
 	SDL_Quit();
 
 	return 0;

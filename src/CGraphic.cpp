@@ -56,6 +56,9 @@ bool CGraphic::Init(std::string windowTitle,
 		windowWidth, windowHeight,
 		windowFlags);
 
+	if (!Window)
+		std::cout << "@@@\n";
+
 	SDL_GL_CreateContext(Window);
 
 	// Инициализируем GLEW
@@ -102,6 +105,8 @@ bool CGraphic::SetVertexAttribPointer(const CVertexAttribArray& attribArray, int
 			return false;
 		}
 	}
+
+	//glEnableVertexAttribArray(layoutIndex);
 
 	glBindBuffer(GL_ARRAY_BUFFER, attribArray.GetAttribBufferID());
 
