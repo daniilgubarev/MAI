@@ -1,6 +1,9 @@
 #include <iostream>
 #include <cstdlib>
 #include <cstdint>
+#include <fstream>
+#include <vector>
+#include <algorithm>
 
 #include "GL_common.h"
 
@@ -9,6 +12,7 @@
 #include "CGraphic.h"
 #include "CVertexAttribArray.h"
 #include "CInput.h"
+#include "CShaderProgram.h"
 
 // Массив из 3 векторов, которые являются вершинами треугольника
 static const GLfloat vertexBufferData[] = {
@@ -89,18 +93,7 @@ static const GLfloat vertexBufferData[] = {
 	0.982f,  0.099f,  0.879f
 };
 
-/*class CShaderProgram
-{
-	enum EShaderType
-	{
-		ST_VERTEX,
-		ST_FRAGMENT
-	}
 
-
-
-	GLuint vertexShaderID;
-};*/
 
 int main(int argc, char *argv[])
 {
@@ -111,10 +104,15 @@ int main(int argc, char *argv[])
 	std::cout << glGetString(GL_VERSION) << std::endl;
 
 	CInput input;
+	CShaderProgram shader;
 
-	GLuint programID = LoadShaders("fx/VertexShader.glsl", "fx/FragmentShader.glsl");
+	shader.LoadShader("fx/VertexShader.glsl", CShaderProgram::ST_VERTEX);
+	shader.LoadShader("fx/FragmentShader.glsl", CShaderProgram::ST_FRAGMENT);
 
-	glUseProgram(programID);
+	shader.LinkShaders();
+	//GLuint programID = LoadShaders("fx/VertexShader.glsl", "fx/FragmentShader.glsl");
+
+	graphic.UseShaderProgram(shader);
 
 	CVertexAttribArray vertexBuffer(sizeof(glm::vec3) * 12 * 3, 3, CVertexAttribArray::AT_FLOAT, false);
 	CVertexAttribArray colorBuffer(sizeof(glm::vec3) * 12 * 3, 3, CVertexAttribArray::AT_FLOAT, false);
@@ -148,9 +146,11 @@ int main(int argc, char *argv[])
 	glm::mat4 matMVP = matProjection * matView * matModel;
 
 	// Set shader matrix
-	GLuint shaderMatrixId = glGetUniformLocation(programID, "MVP");
+	/*GLuint shaderMatrixId = glGetUniformLocation(programID, "MVP");
 
-	glUniformMatrix4fv(shaderMatrixId, 1, GL_FALSE, &matMVP[0][0]);
+	glUniformMatrix4fv(shaderMatrixId, 1, GL_FALSE, &matMVP[0][0]);*/
+
+	shader.SetUniformMatrix("MVP", matMVP);
 
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
@@ -164,7 +164,9 @@ int main(int argc, char *argv[])
 
 	graphic.SwapBuffres();
 
-	while (input.Update() && !input.IsKeyPressed(SDL_SCANCODE_SPACE))
+	while (input.Update() &&
+		!input.IsKeyPressed(SDL_SCANCODE_SPACE) &&
+		!input.IsKeyPressed(SDL_SCANCODE_RETURN))
 		SDL_Delay(1);
 
 	SDL_Quit();

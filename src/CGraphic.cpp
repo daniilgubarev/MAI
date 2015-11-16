@@ -124,3 +124,11 @@ bool CGraphic::SetVertexAttribPointer(const CVertexAttribArray& attribArray, int
 
 	return true;
 }
+
+
+bool CGraphic::UseShaderProgram(const CShaderProgram& program)
+{
+	glUseProgram(program.GetProgramID());
+
+	return true;
+}

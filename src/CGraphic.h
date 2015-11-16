@@ -4,6 +4,7 @@
 
 #include "GL_common.h"
 #include "CVertexAttribArray.h"
+#include "CShaderProgram.h"
 
 class CGraphic
 {
@@ -18,6 +19,8 @@ public:
 	void SwapBuffres();
 
 	bool SetVertexAttribPointer(const CVertexAttribArray& attribArray, int layoutIndex);
+
+	bool UseShaderProgram(const CShaderProgram& program);
 
 private:
 	SDL_Window* Window;
