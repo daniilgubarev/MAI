@@ -13,6 +13,7 @@
 #include "CVertexAttribArray.h"
 #include "CInput.h"
 #include "CShaderProgram.h"
+#include "CTexture.h"
 
 // Массив из 3 векторов, которые являются вершинами треугольника
 static const GLfloat vertexBufferData[] = {
@@ -52,10 +53,10 @@ static const GLfloat vertexBufferData[] = {
 	1.0f, 1.0f, 1.0f,
 	-1.0f, 1.0f, 1.0f,
 	1.0f,-1.0f, 1.0f
-	};
+};
 
-	static const GLfloat colorBufferData[] = {
-		0.583f,  0.771f,  0.014f,
+static const GLfloat colorBufferData[] = {
+	0.583f,  0.771f,  0.014f,
 	0.609f,  0.115f,  0.436f,
 	0.327f,  0.483f,  0.844f,
 	0.822f,  0.569f,  0.201f,
@@ -93,7 +94,44 @@ static const GLfloat vertexBufferData[] = {
 	0.982f,  0.099f,  0.879f
 };
 
-
+ static const GLfloat uvBufferData[] = {
+	0.000059f, 1.0f-0.000004f,
+	0.000103f, 1.0f-0.336048f,
+	0.335973f, 1.0f-0.335903f,
+	1.000023f, 1.0f-0.000013f,
+	0.667979f, 1.0f-0.335851f,
+	0.999958f, 1.0f-0.336064f,
+	0.667979f, 1.0f-0.335851f,
+	0.336024f, 1.0f-0.671877f,
+	0.667969f, 1.0f-0.671889f,
+	1.000023f, 1.0f-0.000013f,
+	0.668104f, 1.0f-0.000013f,
+	0.667979f, 1.0f-0.335851f,
+	0.000059f, 1.0f-0.000004f,
+	0.335973f, 1.0f-0.335903f,
+	0.336098f, 1.0f-0.000071f,
+	0.667979f, 1.0f-0.335851f,
+	0.335973f, 1.0f-0.335903f,
+	0.336024f, 1.0f-0.671877f,
+	1.000004f, 1.0f-0.671847f,
+	0.999958f, 1.0f-0.336064f,
+	0.667979f, 1.0f-0.335851f,
+	0.668104f, 1.0f-0.000013f,
+	0.335973f, 1.0f-0.335903f,
+	0.667979f, 1.0f-0.335851f,
+	0.335973f, 1.0f-0.335903f,
+	0.668104f, 1.0f-0.000013f,
+	0.336098f, 1.0f-0.000071f,
+	0.000103f, 1.0f-0.336048f,
+	0.000004f, 1.0f-0.671870f,
+	0.336024f, 1.0f-0.671877f,
+	0.000103f, 1.0f-0.336048f,
+	0.336024f, 1.0f-0.671877f,
+	0.335973f, 1.0f-0.335903f,
+	0.667969f, 1.0f-0.671889f,
+	1.000004f, 1.0f-0.671847f,
+	0.667979f, 1.0f-0.335851f
+};
 
 int main(int argc, char *argv[])
 {
@@ -106,30 +144,43 @@ int main(int argc, char *argv[])
 	CInput input;
 	CShaderProgram shader;
 
-	shader.LoadShader("fx/VertexShader.glsl", CShaderProgram::ST_VERTEX);
-	shader.LoadShader("fx/FragmentShader.glsl", CShaderProgram::ST_FRAGMENT);
+	shader.LoadShader("fx/pos_uv_TO_uv.vert", CShaderProgram::ST_VERTEX);
+	shader.LoadShader("fx/uv_TO_color.frag", CShaderProgram::ST_FRAGMENT);
 
 	shader.LinkShaders();
-	//GLuint programID = LoadShaders("fx/VertexShader.glsl", "fx/FragmentShader.glsl");
 
 	graphic.UseShaderProgram(shader);
 
 	CVertexAttribArray vertexBuffer(sizeof(glm::vec3) * 12 * 3, 3, CVertexAttribArray::AT_FLOAT, false);
-	CVertexAttribArray colorBuffer(sizeof(glm::vec3) * 12 * 3, 3, CVertexAttribArray::AT_FLOAT, false);
+	//CVertexAttribArray colorBuffer(sizeof(glm::vec3) * 12 * 3, 3, CVertexAttribArray::AT_FLOAT, false);
+	CVertexAttribArray uvBuffer(sizeof(glm::vec2) * 12 * 3, 2, CVertexAttribArray::AT_FLOAT, false);
 
  	// fill vertices
  	char* bufferData = (char*)vertexBuffer.Lock();
 
  	memcpy(bufferData, vertexBufferData, sizeof(vertexBufferData));
 
- 	vertexBuffer.Unlock();
+	vertexBuffer.Unlock();
 
  	// fill colors
- 	bufferData = (char*)colorBuffer.Lock();
+	/*bufferData = (char*)colorBuffer.Lock();
 
- 	memcpy(bufferData, colorBufferData, sizeof(colorBufferData));
+	memcpy(bufferData, colorBufferData, sizeof(colorBufferData));
 
- 	colorBuffer.Unlock();
+ 	colorBuffer.Unlock();*/
+
+ 	bufferData = (char*)uvBuffer.Lock();
+
+	memcpy(bufferData, uvBufferData, sizeof(uvBufferData));
+
+ 	uvBuffer.Unlock();
+
+ 	CTexture texture;
+
+ 	if (!texture.Load("img/image.bmp"))
+ 		std::cerr << "fail load img/image.bmp" << std::endl;
+
+ 	graphic.SetTexture(texture, 0);
 
 	// Setting matrix
 	glm::mat4 matProjection = glm::perspective(
@@ -145,19 +196,14 @@ int main(int argc, char *argv[])
 	glm::mat4 matModel = glm::mat4(1.0f);
 	glm::mat4 matMVP = matProjection * matView * matModel;
 
-	// Set shader matrix
-	/*GLuint shaderMatrixId = glGetUniformLocation(programID, "MVP");
-
-	glUniformMatrix4fv(shaderMatrixId, 1, GL_FALSE, &matMVP[0][0]);*/
-
 	shader.SetUniformMatrix("MVP", matMVP);
+	shader.SetUniformInteger("textureSampler", 0);
 
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 
-	graphic.SetVertexAttribPointer(vertexBuffer, 0);
-
-	graphic.SetVertexAttribPointer(colorBuffer, 1);
+	graphic.SetVertexAttribArray(vertexBuffer, 0);
+	graphic.SetVertexAttribArray(uvBuffer, 1);
 
 	// Вывести треугольник!
 	glDrawArrays(GL_TRIANGLES, 0, 6 * 2 * 3); // Начиная с вершины 0, всего 3 вершины -> один треугольник

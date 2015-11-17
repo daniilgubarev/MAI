@@ -81,7 +81,7 @@ void CGraphic::SwapBuffres()
 	SDL_GL_SwapWindow(Window);
 }
 
-bool CGraphic::SetVertexAttribPointer(const CVertexAttribArray& attribArray, int layoutIndex)
+bool CGraphic::SetVertexAttribArray(const CVertexAttribArray& attribArray, int layoutIndex)
 {
 	GLenum type;
 
@@ -125,6 +125,50 @@ bool CGraphic::SetVertexAttribPointer(const CVertexAttribArray& attribArray, int
 	return true;
 }
 
+bool CGraphic::SetTexture(const CTexture& texture, int index)
+{
+	glActiveTexture(GL_TEXTURE0 + index);
+	glBindTexture(GL_TEXTURE_2D, texture.GetTextureID());
+
+	if (glGetError() != GL_NO_ERROR)
+		return false;
+
+	return true;
+}
+
+void DrawArrays(int vertexCount)
+{
+	glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+}
+
+void DrawElements(const CIndexBuffer& indexBuffer)
+{
+	GLenum type;
+
+	switch (indexBuffer.GetIndexType())
+	{
+		case CIndexBuffer::IT_UINT:
+		{
+			type = GL_UNSIGNED_INT;
+			break;
+		}
+
+		case CIndexBuffer::IT_USHORT:
+		{
+			type = GL_UNSIGNED_SHORT;
+			break;
+		}
+	}
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.GetIndexBufferID());
+
+	glDrawElements(
+		GL_TRIANGLES,
+		indexBuffer.GetIndexCount(),
+		type,
+		(void*)0
+	);
+}
 
 bool CGraphic::UseShaderProgram(const CShaderProgram& program)
 {

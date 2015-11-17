@@ -78,9 +78,6 @@ bool CShaderProgram::LoadShader(const std::string& shaderFilename, EShaderType s
 		return false;
 	}
 
-    // Создаем шейдерную программу и привязываем шейдеры к ней
-	std::cout << "Создаем шейдерную программу и привязываем шейдеры к ней" << std::endl;
-
 	glAttachShader(ProgramID, shaderID);
 
 	/*
@@ -119,11 +116,18 @@ bool CShaderProgram::LinkShaders()
 	return true;
 }
 
-void CShaderProgram::SetUniformMatrix(std::string matrixName, const glm::mat4& matrix)
+void CShaderProgram::SetUniformMatrix(const std::string& matrixName, const glm::mat4& matrix)
 {
 	GLuint shaderMatrixID = glGetUniformLocation(ProgramID, "MVP");
 
 	glUniformMatrix4fv(shaderMatrixID, 1, GL_FALSE, &matrix[0][0]);
+}
+
+void CShaderProgram::SetUniformInteger(const std::string& integerName, int value)
+{
+	GLuint shaderIntegerID = glGetUniformLocation(ProgramID, integerName.c_str());
+
+	glUniform1i(shaderIntegerID, value);	
 }
 
 GLuint CShaderProgram::GetProgramID() const

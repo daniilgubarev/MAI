@@ -24,9 +24,9 @@ public:
 	bool IsNormalized() const;
 
 private:
-	void* Buffer;
-
 	GLuint AttribBufferID;
+	
+	void* Buffer;
 	
 	int BufferSize;
 	int AttribSize;

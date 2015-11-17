@@ -5,6 +5,8 @@
 #include "GL_common.h"
 #include "CVertexAttribArray.h"
 #include "CShaderProgram.h"
+#include "CTexture.h"
+#include "CIndexBuffer.h"
 
 class CGraphic
 {
@@ -18,7 +20,11 @@ public:
 
 	void SwapBuffres();
 
-	bool SetVertexAttribPointer(const CVertexAttribArray& attribArray, int layoutIndex);
+	bool SetVertexAttribArray(const CVertexAttribArray& attribArray, int layoutIndex);
+	bool SetTexture(const CTexture& texture, int index);
+
+	void DrawArrays(int vertexCount);
+	void DrawElements(const CIndexBuffer& indexBuffer);
 
 	bool UseShaderProgram(const CShaderProgram& program);
 
