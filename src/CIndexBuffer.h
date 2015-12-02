@@ -11,8 +11,11 @@ public:
 		IT_USHORT
 	};
 
+	CIndexBuffer();
 	CIndexBuffer(int indexCount, EIndexType indexType);
 	~CIndexBuffer();
+
+	bool Init(int indexCount, EIndexType indexType);
 
 	void* Lock();
 	bool Unlock();

@@ -1,32 +1,60 @@
 #include "CVertexAttribArray.h"
 
-CVertexAttribArray::CVertexAttribArray(int bufferSize, int attribSize, EAttribType attribType, bool normalized) :
-	BufferSize(bufferSize),
-	AttribSize(attribSize),
-	AttribType(attribType),
-	Normalized(normalized)
+CVertexAttribArray::CVertexAttribArray()
 {
-	Buffer = new char[BufferSize];
+	Buffer = nullptr;
+	AttribBufferID = 0;
+}
+
+CVertexAttribArray::CVertexAttribArray(int bufferSize, int attribSize, EAttribType attribType, bool normalized)
+{
+	Init(bufferSize, attribSize, attribType, normalized);
 
 	glGenBuffers(1, &AttribBufferID);
 }
 
 CVertexAttribArray::~CVertexAttribArray()
 {
-	delete[] (char*)Buffer;
+	if (Buffer)
+		delete[] (char*)Buffer;
+
+	if (AttribBufferID)
+		glDeleteBuffers(1, &AttribBufferID);
+}
+
+bool CVertexAttribArray::Init(int bufferSize, int attribSize, EAttribType attribType, bool normalized)
+{
+	BufferSize = bufferSize;
+	AttribSize = attribSize;
+	AttribType = attribType;
+	Normalized = normalized;
+
+	Buffer = new char[BufferSize];
+	IsLocked = false;
+
+	glGenBuffers(1, &AttribBufferID);
+	GL_CHECK();
+
+	return true;
+}
+
+const void* CVertexAttribArray::ConstLock() const
+{
+	return Buffer;
 }
 
 void* CVertexAttribArray::Lock()
 {
+	IsLocked = true;
 	return Buffer;
 }
 
 bool CVertexAttribArray::Unlock()
 {
-	glBindBuffer(GL_ARRAY_BUFFER, AttribBufferID);
-	
-	if (glGetError() != GL_NO_ERROR)
+	if (!IsLocked)
 		return false;
+
+	glBindBuffer(GL_ARRAY_BUFFER, AttribBufferID);
 
 	glBufferData(
 		GL_ARRAY_BUFFER,
@@ -34,9 +62,9 @@ bool CVertexAttribArray::Unlock()
 		Buffer,
 		GL_STATIC_DRAW
 	);
+	GL_CHECK();
 
-	if (glGetError() != GL_NO_ERROR)
-		return false;
+	IsLocked = false;
 
 	return true;
 }

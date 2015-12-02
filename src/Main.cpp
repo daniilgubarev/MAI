@@ -7,13 +7,13 @@
 
 #include "GL_common.h"
 
-#include "LoadShader.h"
-
 #include "CGraphic.h"
 #include "CVertexAttribArray.h"
 #include "CInput.h"
 #include "CShaderProgram.h"
 #include "CTexture.h"
+#include "CCamera.h"
+#include "CTerrain.h"
 
 // Массив из 3 векторов, которые являются вершинами треугольника
 static const GLfloat vertexBufferData[] = {
@@ -149,71 +149,102 @@ int main(int argc, char *argv[])
 
 	shader.LinkShaders();
 
-	graphic.UseShaderProgram(shader);
-
 	CVertexAttribArray vertexBuffer(sizeof(glm::vec3) * 12 * 3, 3, CVertexAttribArray::AT_FLOAT, false);
-	//CVertexAttribArray colorBuffer(sizeof(glm::vec3) * 12 * 3, 3, CVertexAttribArray::AT_FLOAT, false);
 	CVertexAttribArray uvBuffer(sizeof(glm::vec2) * 12 * 3, 2, CVertexAttribArray::AT_FLOAT, false);
 
  	// fill vertices
- 	char* bufferData = (char*)vertexBuffer.Lock();
+	char* bufferData = (char*)vertexBuffer.Lock();
 
- 	memcpy(bufferData, vertexBufferData, sizeof(vertexBufferData));
+		memcpy(bufferData, vertexBufferData, sizeof(vertexBufferData));
 
 	vertexBuffer.Unlock();
 
- 	// fill colors
-	/*bufferData = (char*)colorBuffer.Lock();
-
-	memcpy(bufferData, colorBufferData, sizeof(colorBufferData));
-
- 	colorBuffer.Unlock();*/
-
  	bufferData = (char*)uvBuffer.Lock();
 
-	memcpy(bufferData, uvBufferData, sizeof(uvBufferData));
+		memcpy(bufferData, uvBufferData, sizeof(uvBufferData));
 
  	uvBuffer.Unlock();
 
- 	CTexture texture;
+	CTerrain terrain(
+		1.0f,
+		0.005f,
+		"img/heightMap.png",
+		"img/coefTex.png",
+		"img/megaTex.png",
+		"fx/terrain.vert",
+		"fx/terrain.frag"
+	);
 
- 	if (!texture.Load("img/image.bmp"))
+	terrain.LoadDiffuseTexture(0, "img/grass1s.png");
+	terrain.LoadDiffuseTexture(0, "img/rock0.png");
+	terrain.LoadDiffuseTexture(0, "img/snow0.png");
+	terrain.LoadDiffuseTexture(0, "img/sand0.png");
+
+	CTexture texture;
+
+	if (!texture.Load("img/image.bmp"))
  		std::cerr << "fail load img/image.bmp" << std::endl;
 
- 	graphic.SetTexture(texture, 0);
-
-	// Setting matrix
-	glm::mat4 matProjection = glm::perspective(
-		float(M_PI) / 4.0f,
-		static_cast<float>(400) / static_cast<float>(300),
-		0.1f,
-		100.0f);
-
-	glm::vec3 cameraPosition = -glm::vec3(3.0f, 4.0f, 5.0f);
+	glm::vec3 cameraPosition = -glm::vec3(3.0f, 2.0f, 3.0f);
 	glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
 
-	glm::mat4 matView = glm::lookAt(cameraPosition, cameraTarget, glm::vec3(0.0f, 1.0f, 0.0f));
-	glm::mat4 matModel = glm::mat4(1.0f);
-	glm::mat4 matMVP = matProjection * matView * matModel;
+	CCamera camera(
+		cameraPosition,
+		cameraTarget,
+		800, 600,
+		0.1, 100000.0,
+		M_PI / 4
+	);
 
-	shader.SetUniformMatrix("MVP", matMVP);
-	shader.SetUniformInteger("textureSampler", 0);
-
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-
-	graphic.SetVertexAttribArray(vertexBuffer, 0);
-	graphic.SetVertexAttribArray(uvBuffer, 1);
-
-	// Вывести треугольник!
-	glDrawArrays(GL_TRIANGLES, 0, 6 * 2 * 3); // Начиная с вершины 0, всего 3 вершины -> один треугольник
-
-	graphic.SwapBuffres();
+	graphic.SetActiveCamera(&camera);
 
 	while (input.Update() &&
 		!input.IsKeyPressed(SDL_SCANCODE_SPACE) &&
 		!input.IsKeyPressed(SDL_SCANCODE_RETURN))
-		SDL_Delay(1);
+	{
+		glm::mat4 matView = camera.GetViewMatrix();
+		glm::vec3 right(matView[0][0], matView[1][0], matView[2][0]);
+		glm::vec3 up   (matView[0][1], matView[1][1], matView[2][1]);
+		glm::vec3 front(matView[0][2], matView[1][2], matView[2][2]);
+
+		if (input.IsKeyPressed(SDL_SCANCODE_LSHIFT))
+			cameraPosition += up * 0.01f;
+		if (input.IsKeyPressed(SDL_SCANCODE_LCTRL))
+			cameraPosition -= up * 0.01f;
+		if (input.IsKeyPressed(SDL_SCANCODE_UP))
+			cameraPosition -= front * 0.01f;
+		if (input.IsKeyPressed(SDL_SCANCODE_DOWN))
+			cameraPosition += front * 0.01f;
+		if (input.IsKeyPressed(SDL_SCANCODE_LEFT))
+			cameraPosition += right * 0.01f;
+		if (input.IsKeyPressed(SDL_SCANCODE_RIGHT))
+			cameraPosition -= right * 0.01f;
+
+		camera.SetPosition(cameraPosition);
+		camera.LookAt(cameraTarget);
+
+		graphic.Clear();
+
+		/*// Draw Cube
+		graphic.UseShaderProgram(shader);
+
+		graphic.SetVertexAttribArray(vertexBuffer, 0);
+		graphic.SetVertexAttribArray(uvBuffer, 1);
+
+		graphic.SetTexture(texture, 0);
+
+		shader.SetUniformInteger("textureSampler", 0);
+		shader.SetUniformMatrix("MVP", camera.GetViewProjMatrix());
+
+		graphic.DrawArrays(6 * 2 * 3); // Начиная с вершины 0, всего 3 вершины -> один треугольник
+		// ***********/
+
+		// Draw Terrain
+		terrain.Draw(graphic);
+		// **********
+
+		graphic.SwapBuffres();
+	}
 
 	SDL_Quit();
 

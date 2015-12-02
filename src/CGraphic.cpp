@@ -56,9 +56,6 @@ bool CGraphic::Init(std::string windowTitle,
 		windowWidth, windowHeight,
 		windowFlags);
 
-	if (!Window)
-		std::cout << "@@@\n";
-
 	SDL_GL_CreateContext(Window);
 
 	// Инициализируем GLEW
@@ -72,8 +69,17 @@ bool CGraphic::Init(std::string windowTitle,
 
  	glEnable(GL_DEPTH_TEST);
  	glDepthFunc(GL_LESS);
+	glCullFace(GL_FRONT_AND_BACK);
+	glDisable ( GL_CULL_FACE );
+	glPolygonMode( GL_FRONT_AND_BACK, GL_LINE ) ;
 
 	return true;
+}
+
+void CGraphic::Clear()
+{
+	glClearColor(0.5f, 0.5f, 0.5f, 0.5f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void CGraphic::SwapBuffres()
@@ -106,21 +112,21 @@ bool CGraphic::SetVertexAttribArray(const CVertexAttribArray& attribArray, int l
 		}
 	}
 
-	//glEnableVertexAttribArray(layoutIndex);
+	glEnableVertexAttribArray(layoutIndex);
+	GL_CHECK()
 
 	glBindBuffer(GL_ARRAY_BUFFER, attribArray.GetAttribBufferID());
+	GL_CHECK()
 
 	glVertexAttribPointer(
-		layoutIndex,					// Атрибут 0. Подробнее об этом будет рассказано в части, посвященной шейдерам.
+		layoutIndex,					// Атрибут 0.
 		attribArray.GetAttribSize(),	// Размер
 		type,							// Тип
 		attribArray.IsNormalized(),		// Указывает, что значения не нормализованы
 		0,								// Шаг
 		(void*)0						// Смещение массива в буфере
 	);
-
-	if (glGetError() != GL_NO_ERROR)
-		return false;
+	GL_CHECK()
 
 	return true;
 }
@@ -128,20 +134,31 @@ bool CGraphic::SetVertexAttribArray(const CVertexAttribArray& attribArray, int l
 bool CGraphic::SetTexture(const CTexture& texture, int index)
 {
 	glActiveTexture(GL_TEXTURE0 + index);
-	glBindTexture(GL_TEXTURE_2D, texture.GetTextureID());
+	GL_CHECK()
 
-	if (glGetError() != GL_NO_ERROR)
-		return false;
+	glBindTexture(GL_TEXTURE_2D, texture.GetTextureID());
+	GL_CHECK()
 
 	return true;
 }
 
-void DrawArrays(int vertexCount)
+void CGraphic::SetActiveCamera(CCamera* camera)
 {
-	glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+	ActiveCamera = camera;
 }
 
-void DrawElements(const CIndexBuffer& indexBuffer)
+CCamera* CGraphic::GetActiveCamera() const
+{
+	return ActiveCamera;
+}
+
+void CGraphic::DrawArrays(int vertexCount)
+{
+	glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+	GL_CHECK()
+}
+
+void CGraphic::DrawIndexedArrays(const CIndexBuffer& indexBuffer)
 {
 	GLenum type;
 
@@ -161,6 +178,7 @@ void DrawElements(const CIndexBuffer& indexBuffer)
 	}
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.GetIndexBufferID());
+	GL_CHECK()
 
 	glDrawElements(
 		GL_TRIANGLES,
@@ -168,11 +186,13 @@ void DrawElements(const CIndexBuffer& indexBuffer)
 		type,
 		(void*)0
 	);
+	GL_CHECK()
 }
 
 bool CGraphic::UseShaderProgram(const CShaderProgram& program)
 {
 	glUseProgram(program.GetProgramID());
+	GL_CHECK()
 
 	return true;
 }

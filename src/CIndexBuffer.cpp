@@ -1,9 +1,30 @@
 #include "CIndexBuffer.h"
 
-CIndexBuffer::CIndexBuffer(int indexCount, EIndexType indexType) :
-	IndexCount(indexCount),
-	IndexType(indexType)
+CIndexBuffer::CIndexBuffer()
 {
+	IndexBufferID = 0;
+}
+
+CIndexBuffer::CIndexBuffer(int indexCount, EIndexType indexType)
+{
+	IndexBufferID = 0;
+
+	Init(indexCount, indexType);
+}
+
+CIndexBuffer::~CIndexBuffer()
+{
+	delete[] (char*)Buffer;
+}
+
+bool CIndexBuffer::Init(int indexCount, EIndexType indexType)
+{
+	IndexCount = indexCount;
+	IndexType = indexType;
+
+	if (IndexBufferID == 0)
+		glGenBuffers(1, &IndexBufferID);
+
 	switch (IndexType)
 	{
 		case IT_UINT:
@@ -21,12 +42,7 @@ CIndexBuffer::CIndexBuffer(int indexCount, EIndexType indexType) :
 
 	Buffer = new char[BufferSize];
 
-	glGenBuffers(1, &IndexBufferID);
-}
-
-CIndexBuffer::~CIndexBuffer()
-{
-	delete[] (char*)Buffer;
+	return true;
 }
 
 void* CIndexBuffer::Lock()
@@ -37,9 +53,7 @@ void* CIndexBuffer::Lock()
 bool CIndexBuffer::Unlock()
 {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IndexBufferID);
-	
-	if (glGetError() != GL_NO_ERROR)
-		return false;
+	GL_CHECK();
 
 	glBufferData(
 		GL_ELEMENT_ARRAY_BUFFER,
@@ -47,9 +61,7 @@ bool CIndexBuffer::Unlock()
 		Buffer,
 		GL_STATIC_DRAW
 	);
-
-	if (glGetError() != GL_NO_ERROR)
-		return false;
+	GL_CHECK();
 
 	return true;
 }

@@ -11,9 +11,13 @@ public:
 		AT_UNSIGNED_BYTE
 	};
 
+	CVertexAttribArray();
 	CVertexAttribArray(int bufferSize, int attribSize, EAttribType attribType, bool normalized);
 	~CVertexAttribArray();
 
+	bool Init(int bufferSize, int attribSize, EAttribType attribType, bool normalized);
+
+	const void* ConstLock() const;
 	void* Lock();
 	bool Unlock();
 
@@ -27,6 +31,7 @@ private:
 	GLuint AttribBufferID;
 	
 	void* Buffer;
+	bool IsLocked;
 	
 	int BufferSize;
 	int AttribSize;

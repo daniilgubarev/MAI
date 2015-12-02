@@ -119,15 +119,19 @@ bool CShaderProgram::LinkShaders()
 void CShaderProgram::SetUniformMatrix(const std::string& matrixName, const glm::mat4& matrix)
 {
 	GLuint shaderMatrixID = glGetUniformLocation(ProgramID, "MVP");
+	GL_CHECK();
 
 	glUniformMatrix4fv(shaderMatrixID, 1, GL_FALSE, &matrix[0][0]);
+	GL_CHECK();
 }
 
 void CShaderProgram::SetUniformInteger(const std::string& integerName, int value)
 {
 	GLuint shaderIntegerID = glGetUniformLocation(ProgramID, integerName.c_str());
+	GL_CHECK();
 
-	glUniform1i(shaderIntegerID, value);	
+	glUniform1i(shaderIntegerID, value);
+	GL_CHECK();
 }
 
 GLuint CShaderProgram::GetProgramID() const

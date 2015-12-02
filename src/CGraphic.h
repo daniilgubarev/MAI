@@ -7,6 +7,7 @@
 #include "CShaderProgram.h"
 #include "CTexture.h"
 #include "CIndexBuffer.h"
+#include "CCamera.h"
 
 class CGraphic
 {
@@ -18,16 +19,21 @@ public:
 		int windowWidth, int windowHeight,
 		bool fullscreen);
 
+	void Clear();
 	void SwapBuffres();
 
 	bool SetVertexAttribArray(const CVertexAttribArray& attribArray, int layoutIndex);
 	bool SetTexture(const CTexture& texture, int index);
 
+	void SetActiveCamera(CCamera* camera);
+	CCamera* GetActiveCamera() const;
+
 	void DrawArrays(int vertexCount);
-	void DrawElements(const CIndexBuffer& indexBuffer);
+	void DrawIndexedArrays(const CIndexBuffer& indexBuffer);
 
 	bool UseShaderProgram(const CShaderProgram& program);
 
 private:
 	SDL_Window* Window;
+	CCamera* ActiveCamera;
 };
