@@ -69,9 +69,13 @@ bool CGraphic::Init(std::string windowTitle,
 
  	glEnable(GL_DEPTH_TEST);
  	glDepthFunc(GL_LESS);
-	glCullFace(GL_FRONT_AND_BACK);
-	glDisable ( GL_CULL_FACE );
-	glPolygonMode( GL_FRONT_AND_BACK, GL_LINE ) ;
+
+ 	glEnable(GL_CULL_FACE);
+ 	glFrontFace(GL_CCW);
+	glCullFace(GL_BACK);
+	GL_CHECK();
+	/*glDisable ( GL_CULL_FACE );
+	glPolygonMode( GL_FRONT_AND_BACK, GL_LINE ) ;*/
 
 	return true;
 }

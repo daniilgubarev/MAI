@@ -118,7 +118,7 @@ bool CShaderProgram::LinkShaders()
 
 void CShaderProgram::SetUniformMatrix(const std::string& matrixName, const glm::mat4& matrix)
 {
-	GLuint shaderMatrixID = glGetUniformLocation(ProgramID, "MVP");
+	GLuint shaderMatrixID = glGetUniformLocation(ProgramID, matrixName.c_str());
 	GL_CHECK();
 
 	glUniformMatrix4fv(shaderMatrixID, 1, GL_FALSE, &matrix[0][0]);

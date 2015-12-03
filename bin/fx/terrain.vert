@@ -12,6 +12,6 @@ void main(void)
 {
 	gl_Position = matVP * vec4(vertPosition, 1);
 
-	fragPosition = gl_Position.xyz;
+	fragPosition = vertPosition;
 	fragUV = vertUV;
 }

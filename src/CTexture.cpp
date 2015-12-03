@@ -26,8 +26,16 @@ CTexture::~CTexture()
 
 bool CTexture::Load(const std::string& filename)
 {
-	if (!LoadFromFileSDL(filename))
-		return false;
+	if (filename.substr(filename.size() - 4) == ".mtf")
+	{
+		if (!LoadFromFileMTF(filename))
+			return false;
+	}
+	else
+	{
+		if (!LoadFromFileSDL(filename))
+			return false;
+	}
 
 	if (!LoadToOpenGL())
 		return false;

@@ -116,7 +116,11 @@ void CTerrain::LoadFromHeightmap(const std::string& filename, float heightScalli
 
 				vertex[n].x = j * CellSize;
 				vertex[n].z = i * CellSize;
-				vertex[n].y = 0.0f;//pixels[n].G * heightScalling;
+				vertex[n].y = pixels[n].G * heightScalling;
+
+				/*std::cout << vertex[n].x << " x "
+						  << vertex[n].z
+						  <<std::endl;*/
 
 				uv[n].x = float(j) / float(VertexPerRow);
 				uv[n].y = float(i) / float(VertexPerColumn);
@@ -129,24 +133,30 @@ void CTerrain::LoadFromHeightmap(const std::string& filename, float heightScalli
 	Indexes.Init((VertexPerColumn - 1) * (VertexPerRow - 1) * 6, CIndexBuffer::IT_UINT);
 
 	size_t currIndex = 0;
-	GLuint* index = (uint32_t*)Indexes.Lock();
+	GLuint* index = (GLuint*)Indexes.Lock();
 
-	for (int i = 0; i < VertexPerColumn - 1; i++)
+	for (int z = 0; z < VertexPerColumn - 1; z++)
 	{
-		for (int j = 0; j < VertexPerRow - 1; j++)
+		for (int x = 0; x < VertexPerRow - 1; x++)
 		{
-			GLuint v11 = i * VertexPerRow + j;
+			GLuint v11 = z * VertexPerRow + x;
 			GLuint v12 = v11 + 1;
 			GLuint v21 = v11 + VertexPerRow;
 			GLuint v22 = v21 + 1;
+
+			/*std::cout
+			<< v11 << "\t" << v12 << std::endl
+			<< v21 << "\t" << v22 << std::endl 
+			<< "--------------"
+			<< std::endl;*/
 
 			index[currIndex + 0] = v11;
 			index[currIndex + 1] = v21;
 			index[currIndex + 2] = v12;
 
 			index[currIndex + 3] = v12;
-			index[currIndex + 4] = v22;
-			index[currIndex + 5] = v21;
+			index[currIndex + 4] = v21;
+			index[currIndex + 5] = v22;
 
 			currIndex += 6;
 		}

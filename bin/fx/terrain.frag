@@ -17,11 +17,13 @@ void main(void)
 	vec4 megaColor = texture2D(megaTexture, fragUV);
 	vec4 coeffs = texture2D(coeffTexture, fragUV);
 
-	vec4 diffuseColor = texture2D(diffuseTexture0, fragPosition.xz) * coeffs.a;
-	diffuseColor	 += texture2D(diffuseTexture1, fragPosition.xz) * coeffs.r;
-	diffuseColor	 += texture2D(diffuseTexture2, fragPosition.xz) * coeffs.g;
-	diffuseColor	 += texture2D(diffuseTexture3, fragPosition.xz) * coeffs.b;
+	//coeffs /= (coeffs.a + coeffs.r + coeffs.g + coeffs.b);
 
-	color = vec3(1.0, 1.0, 1.0);//diffuseColor.rgb * (1.0 - megaColor.a) + megaColor.rgb * megaColor.a;
+	vec4 diffuseColor = texture2D(diffuseTexture0, fragPosition.xz * 0.2) * coeffs.r;
+	diffuseColor	 += texture2D(diffuseTexture1, fragPosition.xz * 0.2) * coeffs.g;
+	diffuseColor	 += texture2D(diffuseTexture2, fragPosition.xz * 0.2) * coeffs.b;
+	diffuseColor	 += texture2D(diffuseTexture3, fragPosition.xz * 0.2) * coeffs.a;
+
+	color = diffuseColor.rgb * (1.0 - (megaColor.a + 0.1)) + megaColor.rgb * (megaColor.a + 0.1);
 }
 
