@@ -10,6 +10,7 @@ CTerrain::CTerrain(float cellSize, float heightScale,
 	CellSize = cellSize;
 
 	LoadFromHeightmap(heightMapFilename, heightScale);
+	CalculateNormals();
 
 	CoeffTexture.Load(coeffTexFilename);
 	MegaTexture.Load(megaTexFilename);
@@ -29,16 +30,16 @@ void CTerrain::LoadDiffuseTexture(int index, const std::string& filename)
 	DiffuseTextures[index].Load(filename);
 }
 
-float CTerrain::GetHeight(float x, float z) const
+float CTerrain::GetHeight(glm::vec3 pos) const
 {
-	glm::vec3 orig(x, 0.0f, z);
+	glm::vec3 orig(pos.x, 0.0f, pos.z);
 	glm::vec3 dir(0.0f, 1.0f, 0.0f);
 	glm::vec3 result;
 
 	const glm::vec3* vertex = (const glm::vec3*)Vertices.ConstLock();
 
-	int col = int(floorf(x / CellSize));
-	int row = int(floorf(z / CellSize));
+	int col = int(floorf(pos.x / CellSize));
+	int row = int(floorf(pos.z / CellSize));
 
 	const glm::vec3* v0 = (glm::vec3*)(&vertex[row * VertexPerRow + col]);
 	const glm::vec3* v1 = (glm::vec3*)(&vertex[row * VertexPerRow + col + 1]);
@@ -70,6 +71,7 @@ void CTerrain::Draw(CGraphic& graphic)
 
 	graphic.SetVertexAttribArray(Vertices, 0);
 	graphic.SetVertexAttribArray(UVCoords, 1);
+	graphic.SetVertexAttribArray(Normals, 2);
 
 	Shader.SetUniformInteger("megaTexture", 0);
 	Shader.SetUniformInteger("coeffTexture", 1);
@@ -99,10 +101,10 @@ void CTerrain::LoadFromHeightmap(const std::string& filename, float heightScalli
 	if (!pixels)
 		return;
 
-	Vertices.Init(sizeof(glm::vec3) * heightMap.GetHeight() * heightMap.GetWidth(),
+	Vertices.Init(sizeof(glm::vec3) * VertexPerColumn * VertexPerRow,
 		3, CVertexAttribArray::AT_FLOAT, false);
 
-	UVCoords.Init(sizeof(glm::vec2) * heightMap.GetHeight() * heightMap.GetWidth(),
+	UVCoords.Init(sizeof(glm::vec2) * VertexPerColumn * VertexPerRow,
 		2, CVertexAttribArray::AT_FLOAT, false);
 
 	glm::vec3* vertex = (glm::vec3*)Vertices.Lock();
@@ -167,4 +169,29 @@ void CTerrain::LoadFromHeightmap(const std::string& filename, float heightScalli
 
 void CTerrain::CalculateNormals()
 {
+	Normals.Init(sizeof(glm::vec3) * VertexPerColumn * VertexPerRow,
+		3, CVertexAttribArray::AT_FLOAT, false);
+
+	glm::vec3* normal = (glm::vec3*)Normals.Lock();
+	glm::vec3* vertex = (glm::vec3*)Vertices.ConstLock();
+
+	for (int z = 0; z < VertexPerColumn - 1; z++)
+	{
+		for (int x = 0; x < VertexPerRow - 1; x++)
+		{
+			int n = z * VertexPerRow + x;
+
+			GLuint v11 = z * VertexPerRow + x;
+			GLuint v12 = v11 + 1;
+			GLuint v21 = v11 + VertexPerRow;
+
+			glm::vec3 a = vertex[v11];
+			glm::vec3 b = vertex[v12];
+			glm::vec3 c = vertex[v21];
+
+			normal[n] = glm::normalize(glm::cross(c - a, b - a));
+		}
+	}
+
+	Normals.Unlock();
 }

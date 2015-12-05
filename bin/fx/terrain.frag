@@ -2,6 +2,7 @@
 
 in vec3 fragPosition;
 in vec2 fragUV;
+in vec3 fragNormal;
 
 uniform sampler2D megaTexture;
 uniform sampler2D coeffTexture;
@@ -24,6 +25,6 @@ void main(void)
 	diffuseColor	 += texture2D(diffuseTexture2, fragPosition.xz * 0.2) * coeffs.b;
 	diffuseColor	 += texture2D(diffuseTexture3, fragPosition.xz * 0.2) * coeffs.a;
 
-	color = diffuseColor.rgb * (1.0 - (megaColor.a + 0.1)) + megaColor.rgb * (megaColor.a + 0.1);
+	color = abs(fragNormal.rgb);// diffuseColor.rgb * (1.0 - (megaColor.a + 0.1)) + megaColor.rgb * (megaColor.a + 0.1);
 }
 

@@ -21,7 +21,7 @@ public:
 
 	void LoadDiffuseTexture(int index, const std::string& filename);
 
-	float GetHeight(float x, float z) const;
+	float GetHeight(glm::vec3 pos) const;
 
 	void Draw(CGraphic& graphic);
 
