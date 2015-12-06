@@ -94,9 +94,9 @@ void CTerrain::LoadFromHeightmap(const std::string& filename, float heightScalli
 	VertexPerRow = heightMap.GetWidth();
 	VertexPerColumn = heightMap.GetHeight();
 
-	CTexture::SPixelGRAYSCALE8* pixels;
+	CTexture::SPixelGRAYSCALE16* pixels;
 
-	pixels = (CTexture::SPixelGRAYSCALE8*)heightMap.ConstLock();
+	pixels = (CTexture::SPixelGRAYSCALE16*)heightMap.ConstLock();
 
 	if (!pixels)
 		return;
@@ -118,7 +118,7 @@ void CTerrain::LoadFromHeightmap(const std::string& filename, float heightScalli
 
 				vertex[n].x = j * CellSize;
 				vertex[n].z = i * CellSize;
-				vertex[n].y = pixels[n].G * heightScalling;
+				vertex[n].y = (uint16_t(pixels[n].G >> 8) | uint16_t(pixels[n].G << 8)) * heightScalling;
 
 				/*std::cout << vertex[n].x << " x "
 						  << vertex[n].z
@@ -184,12 +184,21 @@ void CTerrain::CalculateNormals()
 			GLuint v11 = z * VertexPerRow + x;
 			GLuint v12 = v11 + 1;
 			GLuint v21 = v11 + VertexPerRow;
+			GLuint v22 = v21 + 1;
 
 			glm::vec3 a = vertex[v11];
 			glm::vec3 b = vertex[v12];
 			glm::vec3 c = vertex[v21];
+			glm::vec3 d = vertex[v22];
 
-			normal[n] = glm::normalize(glm::cross(c - a, b - a));
+			normal[n] = glm::abs(
+						glm::normalize(
+							glm::normalize(glm::cross(c - a, b - a))
+							+ glm::normalize(glm::cross(b - d, c - d))
+						)
+						);
+
+			normal[n] /= (normal[n].x + normal[n].y + normal[n].z);
 		}
 	}
 

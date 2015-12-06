@@ -70,10 +70,14 @@ int CTexture::GetPixelSize() const
 		case PF_RGBA:
 		case PF_ABGR:
 		case PF_ARGB:
+		case PF_GRAYSCALE32:
 			return 4; break;
 
-		case PF_GRAYSCALE:
+		case PF_GRAYSCALE8:
 			return 1; break;
+
+		case PF_GRAYSCALE16:
+			return 2; break;
 
 		default:
 			return 0; break;
@@ -135,7 +139,7 @@ bool CTexture::LoadFromFileSDL(const std::string& filename)
 			PixelFormat = PF_ABGR; break;
 
 		case SDL_PIXELFORMAT_INDEX8:
-			PixelFormat = PF_GRAYSCALE; break;
+			PixelFormat = PF_GRAYSCALE8; break;
 
 		default:
 		{
@@ -193,7 +197,9 @@ bool CTexture::LoadToOpenGL()
 		case PF_BGRA:
 		case PF_ABGR:	internalFormat = GL_RGBA;	format = GL_BGRA; break;
 
-		case PF_GRAYSCALE:
+		case PF_GRAYSCALE8:
+		case PF_GRAYSCALE16:
+		case PF_GRAYSCALE32:
 		{
 			std::cout << "PF_GRAYSCALE texture not be loaded to OpenGL"
 					  << std::endl;

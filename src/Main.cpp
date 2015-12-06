@@ -115,8 +115,8 @@ int main(int argc, char *argv[])
 
 	CTerrain terrain(
 		1.0f,
-		0.5f,
-		"img/heightMap.png",
+		0.003f,
+		"img/heightMap.mtf",
 		"img/coefTex.mtf",
 		"img/megaTex.png",
 		"fx/terrain.vert",
