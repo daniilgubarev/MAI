@@ -20,7 +20,7 @@ vec4 GetColor(sampler2D tex, vec3 coord, vec3 norm)
 	return texture2D(tex, coord.xz * scalling);
 }
 
-vec4 GetColorTriPlanar(sampler2D tex, vec3 coord, vec3 norm)
+vec4 GetColorTriPlanar(in sampler2D tex, in vec3 coord, in vec3 norm)
 {
 	// in wNorm is the world-space normal of the fragment
 	vec3 blending = abs(norm);
@@ -44,11 +44,24 @@ void main(void)
 	vec4 coeffs = texture2D(coeffTexture, fragUV);
 
 	//coeffs /= (coeffs.a + coeffs.r + coeffs.g + coeffs.b);
+	vec4 diffuseColor = vec4(0.0f, 0.0f, 0.0f, 0.0f);
 
-	vec4 diffuseColor = GetColorTriPlanar(diffuseTexture0, fragPosition, fragNormal) * coeffs.r;
-	diffuseColor	 += GetColorTriPlanar(diffuseTexture1, fragPosition, fragNormal) * coeffs.g;
-	diffuseColor	 += GetColorTriPlanar(diffuseTexture2, fragPosition, fragNormal) * coeffs.b;
-	diffuseColor	 += GetColorTriPlanar(diffuseTexture3, fragPosition, fragNormal) * coeffs.a;
+	//if (gl_FragCoord.w > 10.0)
+	{
+		diffuseColor += GetColor(diffuseTexture0, fragPosition, fragNormal) * coeffs.r;
+		diffuseColor += GetColor(diffuseTexture1, fragPosition, fragNormal) * coeffs.g;
+		diffuseColor += GetColor(diffuseTexture2, fragPosition, fragNormal) * coeffs.b;
+		diffuseColor += GetColor(diffuseTexture3, fragPosition, fragNormal) * coeffs.a;
+		//color = vec3(0.0f, 1.0f, 0.0f);
+	}/*
+	else
+	{
+		diffuseColor += GetColorTriPlanar(diffuseTexture0, fragPosition, fragNormal) * coeffs.r;
+		diffuseColor += GetColorTriPlanar(diffuseTexture1, fragPosition, fragNormal) * coeffs.g;
+		diffuseColor += GetColorTriPlanar(diffuseTexture2, fragPosition, fragNormal) * coeffs.b;
+		diffuseColor += GetColorTriPlanar(diffuseTexture3, fragPosition, fragNormal) * coeffs.a;
+		color = vec3(1.0f, 0.0f, 0.0f);
+	}*/
 
 	color = diffuseColor.rgb * (1.0 - (megaColor.a + 0.1)) + megaColor.rgb * (megaColor.a + 0.1);
 }

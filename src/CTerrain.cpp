@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "CTerrain.h"
 
 CTerrain::CTerrain(float cellSize, float heightScale,
@@ -8,6 +10,7 @@ CTerrain::CTerrain(float cellSize, float heightScale,
 		const std::string& fragmentShadefFilename)
 {
 	CellSize = cellSize;
+	MaxHeight = 0.0f;
 
 	LoadFromHeightmap(heightMapFilename, heightScale);
 	CalculateNormals();
@@ -30,10 +33,10 @@ void CTerrain::LoadDiffuseTexture(int index, const std::string& filename)
 	DiffuseTextures[index].Load(filename);
 }
 
-float CTerrain::GetHeight(glm::vec3 pos) const
+bool CTerrain::GetHeight(const glm::vec3& pos, float& height) const
 {
-	glm::vec3 orig(pos.x, 0.0f, pos.z);
-	glm::vec3 dir(0.0f, 1.0f, 0.0f);
+	glm::vec3 origin(pos.x, 0.0f, pos.z);
+	glm::vec3 direction(0.0f, 1.0f, 0.0f);
 	glm::vec3 result;
 
 	const glm::vec3* vertex = (const glm::vec3*)Vertices.ConstLock();
@@ -41,21 +44,81 @@ float CTerrain::GetHeight(glm::vec3 pos) const
 	int col = int(floorf(pos.x / CellSize));
 	int row = int(floorf(pos.z / CellSize));
 
-	const glm::vec3* v0 = (glm::vec3*)(&vertex[row * VertexPerRow + col]);
-	const glm::vec3* v1 = (glm::vec3*)(&vertex[row * VertexPerRow + col + 1]);
-	const glm::vec3* v2 = (glm::vec3*)(&vertex[(row + 1) * VertexPerRow + col]);
-	const glm::vec3* v3 = (glm::vec3*)(&vertex[(row + 1) * VertexPerRow + col + 1]);
+	if (col > VertexPerRow - 1 || row > VertexPerColumn - 1)
+		return false;
 
-	if (glm::intersectLineTriangle(orig, dir, *v0, *v1, *v2, result))
+	const glm::vec3* v0 = (glm::vec3*)(&(vertex[row * VertexPerRow + col]));
+	const glm::vec3* v1 = (glm::vec3*)(&(vertex[row * VertexPerRow + col + 1]));
+	const glm::vec3* v2 = (glm::vec3*)(&(vertex[(row + 1) * VertexPerRow + col]));
+	const glm::vec3* v3 = (glm::vec3*)(&(vertex[(row + 1) * VertexPerRow + col + 1]));
+
+	if (glm::intersectLineTriangle(origin, direction, *v0, *v1, *v2, result))
 	{
-		return result.y;
+		height = result.x; // because glm
 	}
-	else if (glm::intersectLineTriangle(orig, dir, *v1, *v2, *v3, result))
+	else if (glm::intersectLineTriangle(origin, direction, *v1, *v2, *v3, result))
 	{
-		return result.y;
+		height = result.x;
 	} // На этом месте Серега хавал слойку с сыром "Хачапури"
+	else
+	{
+		return false;
+	}
 
-	return 0.0f;
+	return true;
+}
+
+bool CTerrain::RayIntersect(glm::vec3 origin, glm::vec3 direction, glm::vec3& result) const
+{
+	direction = glm::normalize(direction);
+
+	direction *= CellSize;
+	
+	glm::vec3 v0 = origin;
+	glm::vec3 v1 = origin + direction;
+
+	float maxX = (VertexPerRow - 1) * CellSize;
+	float maxZ = (VertexPerColumn - 1) * CellSize;
+
+	while (true)
+	{
+		if ((v0.x > 0.0f && v1.x < 0.0f) ||
+			(v0.y > 0.0f && v1.y < 0.0f) ||
+			(v0.z > 0.0f && v1.z < 0.0f) ||
+			(v0.x < maxX && v1.x > maxX) ||
+			(v0.y < MaxHeight && v1.y > MaxHeight) ||
+			(v0.z < maxZ && v1.z > maxZ))
+		{
+			return false;
+		}
+
+		float h1, h2;
+
+		if (GetHeight(v0, h1) && GetHeight(v1, h2) &&
+			v0.y > h1 && v1.y < h2)
+		{
+			int x0 = int(floorf(v0.x / CellSize)),
+				z0 = int(floorf(v0.z / CellSize)),
+				x1 = int(floorf(v1.x / CellSize)),
+				z1 = int(floorf(v1.z / CellSize));
+
+			if (!IntersectQuad(x0, z0, origin, direction, result))
+			{
+				if (!IntersectQuad(x1, z1, origin, direction, result))
+				{
+					if (!IntersectQuad(x0, z1, origin, direction, result))
+					{
+						IntersectQuad(x1, z0, origin, direction, result);
+					}
+				}
+			} 
+
+			return true;
+		}
+
+		v0 = v1;
+		v1 += direction;
+	}
 }
 
 void CTerrain::Draw(CGraphic& graphic)
@@ -120,9 +183,7 @@ void CTerrain::LoadFromHeightmap(const std::string& filename, float heightScalli
 				vertex[n].z = i * CellSize;
 				vertex[n].y = (uint16_t(pixels[n].G >> 8) | uint16_t(pixels[n].G << 8)) * heightScalling;
 
-				/*std::cout << vertex[n].x << " x "
-						  << vertex[n].z
-						  <<std::endl;*/
+				MaxHeight = std::max(MaxHeight, vertex[n].y);
 
 				uv[n].x = float(j) / float(VertexPerRow);
 				uv[n].y = float(i) / float(VertexPerColumn);
@@ -145,12 +206,6 @@ void CTerrain::LoadFromHeightmap(const std::string& filename, float heightScalli
 			GLuint v12 = v11 + 1;
 			GLuint v21 = v11 + VertexPerRow;
 			GLuint v22 = v21 + 1;
-
-			/*std::cout
-			<< v11 << "\t" << v12 << std::endl
-			<< v21 << "\t" << v22 << std::endl 
-			<< "--------------"
-			<< std::endl;*/
 
 			index[currIndex + 0] = v11;
 			index[currIndex + 1] = v21;
@@ -203,4 +258,26 @@ void CTerrain::CalculateNormals()
 	}
 
 	Normals.Unlock();
+}
+
+bool CTerrain::IntersectQuad(int x, int z, const glm::vec3& origin, const glm::vec3& direction, glm::vec3& result) const
+{
+	const glm::vec3* vertex = (glm::vec3*)Vertices.ConstLock();
+
+	const glm::vec3* v0 = &vertex[z * VertexPerRow + x];
+	const glm::vec3* v1 = &vertex[z * VertexPerRow + x + 1];
+	const glm::vec3* v2 = &vertex[(z + 1) * VertexPerRow + x];
+	const glm::vec3* v3 = &vertex[(z + 1) * VertexPerRow + x + 1];
+
+	if (glm::intersectRayTriangle(origin, direction, *v0, *v1, *v2, result))
+	{
+		return true;
+	}
+
+	if (glm::intersectRayTriangle(origin, direction, *v1, *v2, *v3, result))
+	{
+		return true;
+	}
+
+	return false;
 }

@@ -152,7 +152,7 @@ int main(int argc, char *argv[])
 	{
 		glm::mat4 matView = camera.GetViewMatrix();
 		glm::vec3 right(matView[0][0], matView[1][0], matView[2][0]);
-		glm::vec3 up   (matView[0][1], matView[1][1], matView[2][1]);
+		glm::vec3 up   (0.0f, 1.0f, 0.0f);//matView[0][1], matView[1][1], matView[2][1]);
 		glm::vec3 front(matView[0][2], matView[1][2], matView[2][2]);
 
 		if (input.IsKeyPressed(SDL_SCANCODE_LSHIFT))
@@ -164,17 +164,23 @@ int main(int argc, char *argv[])
 		if (input.IsKeyPressed(SDL_SCANCODE_DOWN))
 			cameraPosition += front * 0.01f * cameraPosition.y;
 		if (input.IsKeyPressed(SDL_SCANCODE_LEFT))
-			cameraPosition += right * 0.01f * cameraPosition.y;
-		if (input.IsKeyPressed(SDL_SCANCODE_RIGHT))
 			cameraPosition -= right * 0.01f * cameraPosition.y;
+		if (input.IsKeyPressed(SDL_SCANCODE_RIGHT))
+			cameraPosition += right * 0.01f * cameraPosition.y;
+
+		float height;
+		glm::vec3 minPosAtTerrain = cameraPosition - up;
+
+		if (terrain.GetHeight(minPosAtTerrain, height) && minPosAtTerrain.y < height)
+			cameraPosition.y = height + up.y;
 
 		camera.SetPosition(cameraPosition);
-		camera.LookAt(cameraTarget);
+		//camera.LookAt(cameraTarget);
 
 		graphic.Clear();
 
 		// Draw Cube
-		/*graphic.UseShaderProgram(shader);
+		graphic.UseShaderProgram(shader);
 
 		graphic.SetVertexAttribArray(vertexBuffer, 0);
 		graphic.SetVertexAttribArray(uvBuffer, 1);
@@ -185,7 +191,7 @@ int main(int argc, char *argv[])
 		shader.SetUniformMatrix("MVP", camera.GetViewProjMatrix());
 
 		//graphic.DrawArrays(6 * 2 * 3); // Начиная с вершины 0, всего 3 вершины -> один треугольник
-		graphic.DrawIndexedArrays(indexes);*/
+		graphic.DrawIndexedArrays(indexes);
 		// ***********/
 
 		// Draw Terrain

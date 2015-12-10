@@ -21,13 +21,16 @@ public:
 
 	void LoadDiffuseTexture(int index, const std::string& filename);
 
-	float GetHeight(glm::vec3 pos) const;
+	bool GetHeight(const glm::vec3& pos, float& height) const;
+	bool RayIntersect(glm::vec3 origin, glm::vec3 direction, glm::vec3& result) const;
 
 	void Draw(CGraphic& graphic);
 
 private:
 	void LoadFromHeightmap(const std::string& filename, float heightScalling);
 	void CalculateNormals();
+
+	bool IntersectQuad(int x, int z, const glm::vec3& origin, const glm::vec3& direction, glm::vec3& result) const;
 
 	CVertexAttribArray Vertices;
 	CVertexAttribArray Normals;
@@ -45,6 +48,5 @@ private:
 	int VertexPerRow;
 
 	float CellSize;
-
-	float Length;
+	float MaxHeight;
 };
