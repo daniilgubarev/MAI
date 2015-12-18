@@ -14,14 +14,15 @@
 #include "CTexture.h"
 #include "CCamera.h"
 #include "CTerrain.h"
+#include "CTransform.h"
 
 // Массив из 3 векторов, которые являются вершинами треугольника
 static const GLfloat vertexBufferData[] = {
 	// front
-	-1.0, -1.0,  1.0,
-	1.0, -1.0,  1.0,
-	1.0,  1.0,  1.0,
-	-1.0,  1.0,  1.0,
+	-0.5, -0.5,  0.5,
+	0.5, -0.5,  0.5,
+	0.5,  0.5,  0.5,
+	-0.5,  0.5,  0.5,
 	// back
 	-1.0, -1.0, -1.0,
 	1.0, -1.0, -1.0,
@@ -126,15 +127,15 @@ int main(int argc, char *argv[])
 	terrain.LoadDiffuseTexture(0, "img/snow0.png");
 	terrain.LoadDiffuseTexture(1, "img/rock0.png");
 	terrain.LoadDiffuseTexture(2, "img/grass1.png");
-	terrain.LoadDiffuseTexture(3, "img/rock0.png");
+	terrain.LoadDiffuseTexture(3, "img/rock1.png");
 
 	CTexture texture;
 
 	if (!texture.Load("img/image.bmp"))
  		std::cerr << "fail load img/image.bmp" << std::endl;
 
-	glm::vec3 cameraPosition = glm::vec3(1024.0f, 200.0f, 1024.0f);
-	glm::vec3 cameraTarget = glm::vec3(512.0f, 0.0f, 512.0f);
+	glm::vec3 cameraPosition = glm::vec3(-10.0f, 5.0f, -10.0f);
+	glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
 
 	CCamera camera(
 		cameraPosition,
@@ -145,6 +146,11 @@ int main(int argc, char *argv[])
 	);
 
 	graphic.SetActiveCamera(&camera);
+
+	CTransform cubeTransform;
+
+	cubeTransform.SetPosition({0.0f, 0.0f, 0.0f});
+	cubeTransform.LookAtPoint({10.0f, 10.0f, 10.0f});
 
 	while (input.Update() &&
 		!input.IsKeyPressed(SDL_SCANCODE_SPACE) &&
@@ -175,7 +181,7 @@ int main(int argc, char *argv[])
 			cameraPosition.y = height + up.y;
 
 		camera.SetPosition(cameraPosition);
-		//camera.LookAt(cameraTarget);
+		camera.LookAt(cameraTarget);
 
 		graphic.Clear();
 
@@ -187,8 +193,10 @@ int main(int argc, char *argv[])
 
 		graphic.SetTexture(texture, 0);
 
+		//cubeTransform.AddRotation({1.0f, 1.0f, 1.0f}, 0.01f);
+
 		shader.SetUniformInteger("textureSampler", 0);
-		shader.SetUniformMatrix("MVP", camera.GetViewProjMatrix());
+		shader.SetUniformMatrix("MVP", camera.GetViewProjMatrix() * cubeTransform.GetTransformMatrix());
 
 		//graphic.DrawArrays(6 * 2 * 3); // Начиная с вершины 0, всего 3 вершины -> один треугольник
 		graphic.DrawIndexedArrays(indexes);
@@ -200,6 +208,8 @@ int main(int argc, char *argv[])
 
 		graphic.SwapBuffres();
 	}
+
+	
 
 	SDL_Quit();
 

@@ -13,7 +13,8 @@ SRC_NAME = \
 	CTexture.cpp \
 	CIndexBuffer.cpp \
 	CCamera.cpp \
-	CTerrain.cpp
+	CTerrain.cpp \
+	CTransform.cpp
 
 TARGET_NAME = opengl
 

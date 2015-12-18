@@ -16,6 +16,7 @@ public:
 	void LookAtDirection(glm::vec3 direction);
 
 	glm::mat4 GetTransformMatrix();
+	glm::mat4 GetTranslateMatrix();
 	glm::mat4 GetRotationMatrix();
 
 	glm::vec3 GetAxisX();
