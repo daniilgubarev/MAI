@@ -17,7 +17,7 @@ void CTransform::SetPosition(glm::vec3 position)
 
 void CTransform::SetRotation(glm::vec3 axis, float angle)
 {
-	Rotation = glm::normalize(glm::angleAxis(angle, axis));
+	Rotation = glm::normalize(glm::angleAxis(angle, glm::normalize(axis)));
 }
 
 void CTransform::MovePosition(glm::vec3 move)
@@ -27,7 +27,7 @@ void CTransform::MovePosition(glm::vec3 move)
 
 void CTransform::AddRotation(glm::vec3 axis, float angle)
 {
-	Rotation = glm::normalize(glm::angleAxis(angle, axis)) * Rotation;
+	Rotation = glm::normalize(glm::angleAxis(angle, glm::normalize(axis))) * Rotation;
 }
 
 void CTransform::LookAtPoint(glm::vec3 point)

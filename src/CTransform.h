@@ -1,4 +1,6 @@
-#include "GL_common.h"
+#pragma once
+
+#include "CommonHeaders.h"
 
 class CTransform
 {

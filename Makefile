@@ -14,7 +14,10 @@ SRC_NAME = \
 	CIndexBuffer.cpp \
 	CCamera.cpp \
 	CTerrain.cpp \
-	CTransform.cpp
+	CTransform.cpp \
+	CStateManager.cpp \
+	CCameraManager.cpp \
+	CCubeRenderer.cpp
 
 TARGET_NAME = opengl
 

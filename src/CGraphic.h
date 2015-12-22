@@ -1,13 +1,16 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
-#include "GL_common.h"
+#include "CommonHeaders.h"
 #include "CVertexAttribArray.h"
 #include "CShaderProgram.h"
 #include "CTexture.h"
 #include "CIndexBuffer.h"
 #include "CCamera.h"
+
+#include "SRenderable.h"
 
 class CGraphic
 {
@@ -28,12 +31,18 @@ public:
 	void SetActiveCamera(CCamera* camera);
 	CCamera* GetActiveCamera() const;
 
+	void AddRenderableObjects(SRenderable* renderable);
+
 	void DrawArrays(int vertexCount);
 	void DrawIndexedArrays(const CIndexBuffer& indexBuffer);
+
+	void DrawRenderableObjects();
 
 	bool UseShaderProgram(const CShaderProgram& program);
 
 private:
+	std::vector<SRenderable*> RenderableObjects;
+
 	SDL_Window* Window;
 	CCamera* ActiveCamera;
 };

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GL_common.h"
+#include "CommonHeaders.h"
 
 class CShaderProgram
 {
@@ -17,8 +17,9 @@ public:
 	bool LoadShader(const std::string& shaderFilename, EShaderType shaderType);
 	bool LinkShaders();
 
-	void SetUniformMatrix(const std::string& matrixName, const glm::mat4& matrix);
-	void SetUniformInteger(const std::string& integerName, int value);
+	void SetUniform(const std::string& matrixName, const glm::mat4& matrix);
+	void SetUniform(const std::string& vectorName, const glm::vec3& vector);
+	void SetUniform(const std::string& integerName, int value);
 
 	GLuint GetProgramID() const;
 

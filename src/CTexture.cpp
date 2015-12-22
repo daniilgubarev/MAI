@@ -2,7 +2,7 @@
 #include <fstream>
 #include <cstring>
 
-#include "GL_common.h"
+#include "CommonHeaders.h"
 
 #include "SDL2/SDL_image.h"
 
@@ -70,13 +70,13 @@ int CTexture::GetPixelSize() const
 		case PF_RGBA:
 		case PF_ABGR:
 		case PF_ARGB:
-		case PF_GRAYSCALE32:
+		case PF_GRAYSCALE_U32:
 			return 4; break;
 
-		case PF_GRAYSCALE8:
+		case PF_GRAYSCALE_U8:
 			return 1; break;
 
-		case PF_GRAYSCALE16:
+		case PF_GRAYSCALE_U16:
 			return 2; break;
 
 		default:
@@ -139,7 +139,7 @@ bool CTexture::LoadFromFileSDL(const std::string& filename)
 			PixelFormat = PF_ABGR; break;
 
 		case SDL_PIXELFORMAT_INDEX8:
-			PixelFormat = PF_GRAYSCALE8; break;
+			PixelFormat = PF_GRAYSCALE_U8; break;
 
 		default:
 		{
@@ -197,9 +197,9 @@ bool CTexture::LoadToOpenGL()
 		case PF_BGRA:
 		case PF_ABGR:	internalFormat = GL_RGBA;	format = GL_BGRA; break;
 
-		case PF_GRAYSCALE8:
-		case PF_GRAYSCALE16:
-		case PF_GRAYSCALE32:
+		case PF_GRAYSCALE_U8:
+		case PF_GRAYSCALE_U16:
+		case PF_GRAYSCALE_U32:
 		{
 			std::cout << "PF_GRAYSCALE texture not be loaded to OpenGL"
 					  << std::endl;

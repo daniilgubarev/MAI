@@ -116,7 +116,7 @@ bool CShaderProgram::LinkShaders()
 	return true;
 }
 
-void CShaderProgram::SetUniformMatrix(const std::string& matrixName, const glm::mat4& matrix)
+void CShaderProgram::SetUniform(const std::string& matrixName, const glm::mat4& matrix)
 {
 	GLuint shaderMatrixID = glGetUniformLocation(ProgramID, matrixName.c_str());
 	GL_CHECK();
@@ -125,7 +125,16 @@ void CShaderProgram::SetUniformMatrix(const std::string& matrixName, const glm::
 	GL_CHECK();
 }
 
-void CShaderProgram::SetUniformInteger(const std::string& integerName, int value)
+void CShaderProgram::SetUniform(const std::string& vectorName, const glm::vec3& vector)
+{
+	GLuint shaderVectorID = glGetUniformLocation(ProgramID, vectorName.c_str());
+	GL_CHECK();
+
+	glUniformMatrix4fv(shaderVectorID, 1, GL_FALSE, &vector[0]);
+	GL_CHECK();
+}
+
+void CShaderProgram::SetUniform(const std::string& integerName, int value)
 {
 	GLuint shaderIntegerID = glGetUniformLocation(ProgramID, integerName.c_str());
 	GL_CHECK();

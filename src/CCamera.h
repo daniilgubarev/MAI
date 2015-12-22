@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GL_common.h"
+#include "CommonHeaders.h"
 
 class CCamera
 {
@@ -24,9 +24,12 @@ public:
 
 	void LookAt(const glm::vec3& target);
 
-	glm::mat4 GetViewMatrix();
-	glm::mat4 GetProjMatrix();
-	glm::mat4 GetViewProjMatrix();
+	const glm::vec3& GetPosition() const;
+	const glm::vec3& GetDirection() const;
+
+	glm::mat4 GetViewMatrix() const;
+	glm::mat4 GetProjMatrix() const;
+	glm::mat4 GetViewProjMatrix() const;
 
 private:
 	glm::vec3 Position;

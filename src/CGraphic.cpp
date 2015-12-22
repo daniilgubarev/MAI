@@ -156,6 +156,11 @@ CCamera* CGraphic::GetActiveCamera() const
 	return ActiveCamera;
 }
 
+void CGraphic::AddRenderableObjects(SRenderable* renderable)
+{
+	RenderableObjects.push_back(renderable);
+}
+
 void CGraphic::DrawArrays(int vertexCount)
 {
 	glDrawArrays(GL_TRIANGLES, 0, vertexCount);
@@ -191,6 +196,58 @@ void CGraphic::DrawIndexedArrays(const CIndexBuffer& indexBuffer)
 		(void*)0
 	);
 	GL_CHECK()
+}
+
+void CGraphic::DrawRenderableObjects()
+{
+	for (size_t i = 0; i < RenderableObjects.size(); i++)
+	{
+		SRenderable* r = RenderableObjects[i];
+
+		// Set Shader
+		UseShaderProgram(*(r->Shader));
+
+		// Set Textures
+		for (size_t texIndex = 0; texIndex < r->Textures.size(); texIndex++)
+		{
+			SetTexture(*(r->Textures[texIndex].first), texIndex);
+
+			r->Shader->SetUniform(r->Textures[texIndex].second, texIndex);
+		}
+
+		// Set Uniforms
+		for (size_t uniformIndex = 0; uniformIndex < r->Uniforms.size(); uniformIndex++)
+		{
+			SRenderable::SUniform* u = r->Uniforms[uniformIndex];
+
+			switch (u->Type)
+			{
+				case SRenderable::UT_INT:
+				{
+					r->Shader->SetUniform(u->Name, u->Int);
+					break;
+				}
+				case SRenderable::UT_MAT4:
+				{
+					r->Shader->SetUniform(u->Name, u->Mat4);
+					break;
+				}
+				case SRenderable::UT_VEC3:
+				{
+					r->Shader->SetUniform(u->Name, u->Vec3);
+					break;
+				}
+			}
+		}
+
+		// Set AttribArrays
+		for (size_t layout = 0; layout < r->AttribArrays.size(); layout++)
+		{
+			SetVertexAttribArray(*(r->AttribArrays[layout]), layout);
+		}
+
+		DrawIndexedArrays(*r->IndexBuffer);
+	}
 }
 
 bool CGraphic::UseShaderProgram(const CShaderProgram& program)

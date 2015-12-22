@@ -136,14 +136,14 @@ void CTerrain::Draw(CGraphic& graphic)
 	graphic.SetVertexAttribArray(UVCoords, 1);
 	graphic.SetVertexAttribArray(Normals, 2);
 
-	Shader.SetUniformInteger("megaTexture", 0);
-	Shader.SetUniformInteger("coeffTexture", 1);
-	Shader.SetUniformInteger("diffuseTexture0", 2);
-	Shader.SetUniformInteger("diffuseTexture1", 3);
-	Shader.SetUniformInteger("diffuseTexture2", 4);
-	Shader.SetUniformInteger("diffuseTexture3", 5);
+	Shader.SetUniform("megaTexture", 0);
+	Shader.SetUniform("coeffTexture", 1);
+	Shader.SetUniform("diffuseTexture0", 2);
+	Shader.SetUniform("diffuseTexture1", 3);
+	Shader.SetUniform("diffuseTexture2", 4);
+	Shader.SetUniform("diffuseTexture3", 5);
 
-	Shader.SetUniformMatrix("matVP", graphic.GetActiveCamera()->GetViewProjMatrix());
+	Shader.SetUniform("matVP", graphic.GetActiveCamera()->GetViewProjMatrix());
 
 	graphic.DrawIndexedArrays(Indexes);
 }
@@ -157,9 +157,9 @@ void CTerrain::LoadFromHeightmap(const std::string& filename, float heightScalli
 	VertexPerRow = heightMap.GetWidth();
 	VertexPerColumn = heightMap.GetHeight();
 
-	CTexture::SPixelGRAYSCALE16* pixels;
+	CTexture::SPixelGrayscaleU16* pixels;
 
-	pixels = (CTexture::SPixelGRAYSCALE16*)heightMap.ConstLock();
+	pixels = (CTexture::SPixelGrayscaleU16*)heightMap.ConstLock();
 
 	if (!pixels)
 		return;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GL_common.h"
+#include "CommonHeaders.h"
 
 class CVertexAttribArray
 {

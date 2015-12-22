@@ -1,6 +1,8 @@
+#pragma once
+
 #include <string>
 
-#include "GL_common.h"
+#include "CommonHeaders.h"
 
 #include "CGraphic.h"
 #include "CVertexAttribArray.h"

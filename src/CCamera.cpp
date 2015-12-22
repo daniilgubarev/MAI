@@ -54,7 +54,17 @@ void CCamera::LookAt(const glm::vec3& target)
 	Direction = normalize(target - Position);
 }
 
-glm::mat4 CCamera::GetViewMatrix()
+const glm::vec3& CCamera::GetPosition() const
+{
+	return Position;
+}
+
+const glm::vec3& CCamera::GetDirection() const
+{
+	return Direction;
+}
+
+glm::mat4 CCamera::GetViewMatrix() const
 {
 	return glm::lookAt(
 		Position,
@@ -63,7 +73,7 @@ glm::mat4 CCamera::GetViewMatrix()
 	);
 }
 
-glm::mat4 CCamera::GetProjMatrix()
+glm::mat4 CCamera::GetProjMatrix() const
 {
 	return glm::perspective(
 		FOV,
@@ -73,7 +83,7 @@ glm::mat4 CCamera::GetProjMatrix()
 	);
 }
 
-glm::mat4 CCamera::GetViewProjMatrix()
+glm::mat4 CCamera::GetViewProjMatrix() const
 {
 	return GetProjMatrix() * GetViewMatrix();
 }
