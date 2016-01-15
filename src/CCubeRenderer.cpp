@@ -62,21 +62,21 @@ CCubeRenderer::CCubeRenderer(CGraphic* graphic, const CTerrain* terrain)
 
 	// fill vertices
 	char* bufferData = (char*)VertexBuffer->Lock();
-
+	{
 		memcpy(bufferData, vertexBufferData, sizeof(vertexBufferData));
-
+	}
 	VertexBuffer->Unlock();
 
 	bufferData = (char*)UVBuffer->Lock();
-
+	{
 		memcpy(bufferData, uvBufferData, sizeof(uvBufferData));
-
+	}
 	UVBuffer->Unlock();
 
 	bufferData = (char*)Indexes->Lock();
-
+	{
 		memcpy(bufferData, cubeIndexes, sizeof(cubeIndexes));
-
+	}
 	Indexes->Unlock();
 
 	if (!Texture.Load("img/image.bmp"))
@@ -100,9 +100,8 @@ CCubeRenderer::CCubeRenderer(CGraphic* graphic, const CTerrain* terrain)
 		cube.AttribArrays.push_back(UVBuffer);
 
 		cube.IndexBuffer = Indexes;
-
 		cube.Shader = &Shader;
-
+		
 		cube.Textures.push_back(std::make_pair(&Texture, "textureSampler"));
 
 		SRenderable::SUniform* matMVP = new SRenderable::SUniform;

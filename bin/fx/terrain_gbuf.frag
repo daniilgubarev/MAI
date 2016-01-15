@@ -1,5 +1,9 @@
 #version 330 core
 
+layout (location = 0) out vec3 texPosition;
+layout (location = 1) out vec3 texNormal;
+layout (location = 2) out vec3 texDiffuse;
+
 in vec4 fragPosition;
 in vec2 fragUV;
 in vec3 fragNormal;
@@ -64,5 +68,9 @@ void main(void)
 	}
 
 	color = diffuseColor.rgb * (1.0 - (megaColor.a + 0.1)) + megaColor.rgb * (megaColor.a + 0.1);
+
+	texPosition = fragPosition.xyz;
+	texNormal   = fragNormal;
+	texDiffuse  = color.rgb;
 }
 

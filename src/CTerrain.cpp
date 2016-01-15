@@ -172,7 +172,7 @@ void CTerrain::LoadFromHeightmap(const std::string& filename, float heightScalli
 
 	glm::vec3* vertex = (glm::vec3*)Vertices.Lock();
 	glm::vec2* uv = (glm::vec2*)UVCoords.Lock();
-
+	{
 		for (int i = 0; i < VertexPerColumn; i++)
 		{
 			for (int j = 0; j < VertexPerRow; j++)
@@ -189,7 +189,7 @@ void CTerrain::LoadFromHeightmap(const std::string& filename, float heightScalli
 				uv[n].y = float(i) / float(VertexPerColumn);
 			}
 		}
-
+	}
 	Vertices.Unlock();
 	UVCoords.Unlock();
 
@@ -248,8 +248,8 @@ void CTerrain::CalculateNormals()
 
 			normal[n] = glm::abs(
 						glm::normalize(
-							glm::normalize(glm::cross(c - a, b - a))
-							+ glm::normalize(glm::cross(b - d, c - d))
+							glm::normalize(glm::cross(c - a, b - a)) +
+							glm::normalize(glm::cross(b - d, c - d))
 						)
 						);
 

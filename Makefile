@@ -17,7 +17,8 @@ SRC_NAME = \
 	CTransform.cpp \
 	CStateManager.cpp \
 	CCameraManager.cpp \
-	CCubeRenderer.cpp
+	CCubeRenderer.cpp \
+	CGBuffer.cpp
 
 TARGET_NAME = opengl
 

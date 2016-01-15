@@ -18,12 +18,16 @@
 #include "CStateManager.h"
 #include "CCameraManager.h"
 #include "CCubeRenderer.h"
+#include "CGBuffer.h"
 
 int main(int argc, char *argv[])
 {
 	CGraphic graphic;
 
-	graphic.Init("OpenGL + SDL", 800, 600, false);
+	const int screenWidth = 800;
+	const int screenHeight = 600;
+
+	graphic.Init("OpenGL + SDL", screenWidth, screenHeight, false);
 
 	std::cout << glGetString(GL_VERSION) << std::endl;
 
@@ -36,7 +40,7 @@ int main(int argc, char *argv[])
 		"img/coefTex.mtf",
 		"img/megaTex.png",
 		"fx/terrain.vert",
-		"fx/terrain.frag"
+		"fx/terrain_gbuf.frag"
 	);
 
 	terrain.LoadDiffuseTexture(0, "img/snow0.png");
@@ -50,7 +54,7 @@ int main(int argc, char *argv[])
 	CCamera camera(
 		cameraPosition,
 		cameraTarget,
-		800, 600,
+		screenWidth, screenHeight,
 		0.1, 100000.0,
 		M_PI / 4
 	);
@@ -59,47 +63,49 @@ int main(int argc, char *argv[])
 
 	CStateManager stateManager;
 
-	CGameState* cubeRend = new CCubeRenderer(&graphic, &terrain);
-
 	stateManager.AddState(new CCameraManager(&camera, &input, &terrain));
-	stateManager.AddState(cubeRend);
+	//stateManager.AddState(new CCubeRenderer(&graphic, &terrain));
+
+	CGBuffer gBuffer(screenWidth, screenHeight);
+
+	CShaderProgram defferRenderShader;
+
+	defferRenderShader.LoadShader("fx/screen_quad.vert", CShaderProgram::ST_VERTEX);
+	defferRenderShader.LoadShader("fx/gbuffer_color.frag", CShaderProgram::ST_FRAGMENT);
+	
+	if (!defferRenderShader.LinkShaders())
+		return 0;
 
 	while (input.Update() &&
 		!input.IsKeyPressed(SDL_SCANCODE_SPACE) &&
 		!input.IsKeyPressed(SDL_SCANCODE_RETURN))
 	{
-
-		// Draw Cube
-		/*graphic.UseShaderProgram(shader);
-
-		graphic.SetVertexAttribArray(vertexBuffer, 0);
-		graphic.SetVertexAttribArray(uvBuffer, 1);
-
-		graphic.SetTexture(texture, 0);*/
-
-		//cubeTransform.AddRotation({1.0f, 1.0f, 1.0f}, 0.01f);
-
-		//shader.SetUniform("textureSampler", 0);
-
 		stateManager.UpdateAll(1.0f);
 
+		gBuffer.BindFramebuffer();
 
 		graphic.Clear();
+
 		stateManager.RenderAll(1.0f);
+
 		graphic.DrawRenderableObjects();
-
-		//graphic.DrawArrays(6 * 2 * 3); // Начиная с вершины 0, всего 3 вершины -> один треугольник
-		//graphic.DrawIndexedArrays(indexes);
-
-		// ***********/
+		
 		// Draw Terrain
 		terrain.Draw(graphic);
 		// **********
 
+		gBuffer.UnbindFramebuffer();
+
+		gBuffer.BindTextures();
+
+		graphic.Clear();
+
+		graphic.UseShaderProgram(defferRenderShader);
+
+		graphic.DrawQuad();
+
 		graphic.SwapBuffres();
 	}
-
-	
 
 	SDL_Quit();
 

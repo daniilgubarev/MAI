@@ -250,6 +250,11 @@ void CGraphic::DrawRenderableObjects()
 	}
 }
 
+void CGraphic::DrawQuad()
+{
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+}
+
 bool CGraphic::UseShaderProgram(const CShaderProgram& program)
 {
 	glUseProgram(program.GetProgramID());

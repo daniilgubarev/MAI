@@ -35,14 +35,15 @@ public:
 
 	void DrawArrays(int vertexCount);
 	void DrawIndexedArrays(const CIndexBuffer& indexBuffer);
-
 	void DrawRenderableObjects();
+
+	void DrawQuad();
 
 	bool UseShaderProgram(const CShaderProgram& program);
 
 private:
+	CCamera* ActiveCamera;
 	std::vector<SRenderable*> RenderableObjects;
 
 	SDL_Window* Window;
-	CCamera* ActiveCamera;
 };
