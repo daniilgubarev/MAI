@@ -48,8 +48,8 @@ int main(int argc, char *argv[])
 	terrain.LoadDiffuseTexture(2, "img/grass1.png");
 	terrain.LoadDiffuseTexture(3, "img/rock1.png");
 
-	glm::vec3 cameraPosition = glm::vec3(-10.0f, 5.0f, -10.0f);
-	glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 cameraPosition = glm::vec3(10.0f, 400.0f, 10.0f);
+	glm::vec3 cameraTarget = glm::vec3(200.0f, 200.0f, 200.0f);
 
 	CCamera camera(
 		cameraPosition,
@@ -69,11 +69,18 @@ int main(int argc, char *argv[])
 	CGBuffer gBuffer(screenWidth, screenHeight);
 
 	CShaderProgram defferRenderShader;
+	CShaderProgram defferRenderLightShader;
 
 	defferRenderShader.LoadShader("fx/screen_quad.vert", CShaderProgram::ST_VERTEX);
 	defferRenderShader.LoadShader("fx/gbuffer_color.frag", CShaderProgram::ST_FRAGMENT);
+
+	defferRenderLightShader.LoadShader("fx/screen_quad.vert", CShaderProgram::ST_VERTEX);
+	defferRenderLightShader.LoadShader("fx/gbuffer_light.frag", CShaderProgram::ST_FRAGMENT);
 	
 	if (!defferRenderShader.LinkShaders())
+		return 0;
+
+	if (!defferRenderLightShader.LinkShaders())
 		return 0;
 
 	while (input.Update() &&
@@ -100,9 +107,36 @@ int main(int argc, char *argv[])
 
 		graphic.Clear();
 
-		graphic.UseShaderProgram(defferRenderShader);
+		graphic.UseShaderProgram(defferRenderLightShader);
 
-		graphic.DrawQuad();
+		defferRenderLightShader.SetUniform("viewPos", camera.GetPosition());
+
+		glm::vec3 lightPosition[] = {
+			{300.0f, 150.0f, 512.0f},
+			{512.0f, 150.0f, 512.0f},
+			{512.0f, 150.0f, 300.0f}
+		};
+
+		glm::vec3 lightColor[] = {
+			{1.0f, 0.2f, 0.2f},
+			{1.0f, 1.0f, 0.8f},
+			{0.2f, 1.0f, 0.2f}
+		};
+
+		float lightRadius[] = {
+			300.0f,
+			300.0f,
+			300.0f
+		};
+
+		for (size_t i = 0; i < 3; i++)
+		{
+			defferRenderLightShader.SetUniform("lightPosition", lightPosition[i]);
+			defferRenderLightShader.SetUniform("lightColor", lightColor[i]);
+			defferRenderLightShader.SetUniform("lightRadius", lightRadius[i]);
+
+			graphic.DrawQuad();
+		}
 
 		graphic.SwapBuffres();
 	}

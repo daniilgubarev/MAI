@@ -73,7 +73,9 @@ bool CGraphic::Init(std::string windowTitle,
  	glEnable(GL_CULL_FACE);
  	glFrontFace(GL_CCW);
 	glCullFace(GL_BACK);
+
 	GL_CHECK();
+	
 	/*glDisable ( GL_CULL_FACE );
 	glPolygonMode( GL_FRONT_AND_BACK, GL_LINE ) ;*/
 
@@ -82,7 +84,7 @@ bool CGraphic::Init(std::string windowTitle,
 
 void CGraphic::Clear()
 {
-	glClearColor(0.5f, 0.5f, 0.5f, 0.5f);
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
@@ -212,7 +214,7 @@ void CGraphic::DrawRenderableObjects()
 		{
 			SetTexture(*(r->Textures[texIndex].first), texIndex);
 
-			r->Shader->SetUniform(r->Textures[texIndex].second, texIndex);
+			r->Shader->SetUniform(r->Textures[texIndex].second, (int)texIndex);
 		}
 
 		// Set Uniforms
@@ -252,7 +254,15 @@ void CGraphic::DrawRenderableObjects()
 
 void CGraphic::DrawQuad()
 {
+	glBlendFunc(GL_ONE, GL_ONE);
+ 	
+	glEnable(GL_BLEND);
+	glDisable(GL_DEPTH_TEST);
+
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+ 	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
 }
 
 bool CGraphic::UseShaderProgram(const CShaderProgram& program)

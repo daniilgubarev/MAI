@@ -20,6 +20,7 @@ public:
 	void SetUniform(const std::string& matrixName, const glm::mat4& matrix);
 	void SetUniform(const std::string& vectorName, const glm::vec3& vector);
 	void SetUniform(const std::string& integerName, int value);
+	void SetUniform(const std::string& floatName, float value);
 
 	GLuint GetProgramID() const;
 

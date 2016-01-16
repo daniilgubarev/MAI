@@ -246,14 +246,12 @@ void CTerrain::CalculateNormals()
 			glm::vec3 c = vertex[v21];
 			glm::vec3 d = vertex[v22];
 
-			normal[n] = glm::abs(
-						glm::normalize(
+			normal[n] = glm::normalize(
 							glm::normalize(glm::cross(c - a, b - a)) +
 							glm::normalize(glm::cross(b - d, c - d))
-						)
 						);
 
-			normal[n] /= (normal[n].x + normal[n].y + normal[n].z);
+			//normal[n] /= (normal[n].x + normal[n].y + normal[n].z);
 		}
 	}
 

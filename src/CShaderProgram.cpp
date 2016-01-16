@@ -130,7 +130,7 @@ void CShaderProgram::SetUniform(const std::string& vectorName, const glm::vec3& 
 	GLuint shaderVectorID = glGetUniformLocation(ProgramID, vectorName.c_str());
 	GL_CHECK();
 
-	glUniformMatrix4fv(shaderVectorID, 1, GL_FALSE, &vector[0]);
+	glUniform3fv(shaderVectorID, 1, &vector[0]);
 	GL_CHECK();
 }
 
@@ -140,6 +140,15 @@ void CShaderProgram::SetUniform(const std::string& integerName, int value)
 	GL_CHECK();
 
 	glUniform1i(shaderIntegerID, value);
+	GL_CHECK();
+}
+
+void CShaderProgram::SetUniform(const std::string& floatName, float value)
+{
+	GLuint shaderFloatID = glGetUniformLocation(ProgramID, floatName.c_str());
+	GL_CHECK();
+
+	glUniform1f(shaderFloatID, value);
 	GL_CHECK();
 }
 
