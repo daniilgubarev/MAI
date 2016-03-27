@@ -46,9 +46,9 @@ static const uint32_t cubeIndexes[] = {
 	6, 7, 3,
 };
 
-CCubeRenderer::CCubeRenderer(CGraphic* graphic, const CTerrain* terrain)
+CCubeRenderer::CCubeRenderer(CScene* scene, const CTerrain* terrain)
 {
-	Graphic = graphic;
+	Scene = scene;
 
 	Shader.LoadShader("fx/pos_uv_TO_uv.vert", CShaderProgram::ST_VERTEX);
 	Shader.LoadShader("fx/uv_TO_color.frag", CShaderProgram::ST_FRAGMENT);
@@ -84,7 +84,7 @@ CCubeRenderer::CCubeRenderer(CGraphic* graphic, const CTerrain* terrain)
 
 	for (size_t i = 0; i < 100; i++)
 	{
-		SRenderable cube;
+		SRenderable* cube = scene->NewRenderableObject();
 
 		float x = float(i * 10);
 		float y = 0.0f;
@@ -93,33 +93,35 @@ CCubeRenderer::CCubeRenderer(CGraphic* graphic, const CTerrain* terrain)
 		if (terrain)
 			terrain->GetHeight(glm::vec3(x, y, z), y);
 
-		cube.Transform.SetPosition(glm::vec3(x, y, z));
-		cube.Transform.SetRotation(glm::vec3(x, y, z), float(i));
+		cube->Transform.SetPosition(glm::vec3(x, y, z));
+		cube->Transform.SetRotation(glm::vec3(x, y, z), float(i));
 
-		cube.AttribArrays.push_back(VertexBuffer);
-		cube.AttribArrays.push_back(UVBuffer);
+		cube->AttribArrays.push_back(VertexBuffer);
+		cube->AttribArrays.push_back(UVBuffer);
 
-		cube.IndexBuffer = Indexes;
-		cube.Shader = &Shader;
+		cube->IndexBuffer = Indexes;
+		cube->Shader = &Shader;
 		
-		cube.Textures.push_back(std::make_pair(&Texture, "textureSampler"));
+		cube->Textures.push_back(std::make_pair(&Texture, "textureSampler"));
 
 		SRenderable::SUniform* matMVP = new SRenderable::SUniform;
 
-		cube.Uniforms.push_back(matMVP);
+		cube->Uniforms.push_back(matMVP);
 
 		matMVP->Type = SRenderable::UT_MAT4;
 		matMVP->Name = "MVP";
 
 		Cubes.push_back(cube);
 	}
-
-	for (size_t i = 0; i < Cubes.size(); i++)
-		graphic->AddRenderableObjects(&Cubes[i]);
 }
 
 CCubeRenderer::~CCubeRenderer()
 {
+	for (size_t i = 0; i < Cubes.size(); i++)
+	{
+		delete Cubes[i];
+		Scene->DeleteRenderableObject(Cubes[i]);
+	}
 }
 
 bool CCubeRenderer::Update(float dt)
@@ -131,6 +133,7 @@ void CCubeRenderer::Render(float dt)
 {
 	for (size_t i = 0; i < Cubes.size(); i++)
 	{
-		Cubes[i].Uniforms[0]->Mat4 = Graphic->GetActiveCamera()->GetViewProjMatrix() * Cubes[i].Transform.GetTransformMatrix();
+		Cubes[i]->Uniforms[0]->Mat4 = Scene->GetActiveCamera()->GetViewProjMatrix() *
+			Cubes[i]->Transform.GetTransformMatrix();
 	}
 }

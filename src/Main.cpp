@@ -19,10 +19,12 @@
 #include "CCameraManager.h"
 #include "CCubeRenderer.h"
 #include "CGBuffer.h"
+#include "CScene.h"
 
 int main(int argc, char *argv[])
 {
 	CGraphic graphic;
+	CScene scene;
 
 	const int screenWidth = 800;
 	const int screenHeight = 600;
@@ -59,7 +61,7 @@ int main(int argc, char *argv[])
 		M_PI / 4
 	);
 
-	graphic.SetActiveCamera(&camera);
+	scene.SetActiveCamera(&camera);
 
 	CStateManager stateManager;
 
@@ -95,10 +97,10 @@ int main(int argc, char *argv[])
 
 		stateManager.RenderAll(1.0f);
 
-		graphic.DrawRenderableObjects();
+		graphic.DrawScene(&scene);
 		
 		// Draw Terrain
-		terrain.Draw(graphic);
+		terrain.Draw(graphic, &camera);
 		// **********
 
 		gBuffer.UnbindFramebuffer();

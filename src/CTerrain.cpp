@@ -121,7 +121,7 @@ bool CTerrain::RayIntersect(glm::vec3 origin, glm::vec3 direction, glm::vec3& re
 	}
 }
 
-void CTerrain::Draw(CGraphic& graphic)
+void CTerrain::Draw(CGraphic& graphic, CCamera* activeCamera)
 {
 	graphic.UseShaderProgram(Shader);
 
@@ -143,7 +143,7 @@ void CTerrain::Draw(CGraphic& graphic)
 	Shader.SetUniform("diffuseTexture2", 4);
 	Shader.SetUniform("diffuseTexture3", 5);
 
-	Shader.SetUniform("matVP", graphic.GetActiveCamera()->GetViewProjMatrix());
+	Shader.SetUniform("matVP", activeCamera->GetViewProjMatrix());
 
 	graphic.DrawIndexedArrays(Indexes);
 }

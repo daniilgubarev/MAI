@@ -148,21 +148,6 @@ bool CGraphic::SetTexture(const CTexture& texture, int index)
 	return true;
 }
 
-void CGraphic::SetActiveCamera(CCamera* camera)
-{
-	ActiveCamera = camera;
-}
-
-CCamera* CGraphic::GetActiveCamera() const
-{
-	return ActiveCamera;
-}
-
-void CGraphic::AddRenderableObjects(SRenderable* renderable)
-{
-	RenderableObjects.push_back(renderable);
-}
-
 void CGraphic::DrawArrays(int vertexCount)
 {
 	glDrawArrays(GL_TRIANGLES, 0, vertexCount);
@@ -200,11 +185,13 @@ void CGraphic::DrawIndexedArrays(const CIndexBuffer& indexBuffer)
 	GL_CHECK()
 }
 
-void CGraphic::DrawRenderableObjects()
+void CGraphic::DrawScene(CScene* scene)
 {
-	for (size_t i = 0; i < RenderableObjects.size(); i++)
+	for (std::unordered_set<SRenderable*>::const_iterator it = scene->RenderableObjects.begin();
+		 it != scene->RenderableObjects.end();
+		 it++)
 	{
-		SRenderable* r = RenderableObjects[i];
+		SRenderable* r = *it;
 
 		// Set Shader
 		UseShaderProgram(*(r->Shader));

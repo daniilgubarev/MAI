@@ -26,7 +26,7 @@ public:
 	bool GetHeight(const glm::vec3& pos, float& height) const;
 	bool RayIntersect(glm::vec3 origin, glm::vec3 direction, glm::vec3& result) const;
 
-	void Draw(CGraphic& graphic);
+	void Draw(CGraphic& graphic, CCamera* activeCamera);
 
 private:
 	void LoadFromHeightmap(const std::string& filename, float heightScalling);

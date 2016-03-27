@@ -9,8 +9,8 @@
 #include "CTexture.h"
 #include "CIndexBuffer.h"
 #include "CCamera.h"
-
 #include "SRenderable.h"
+#include "CScene.h"
 
 class CGraphic
 {
@@ -28,14 +28,9 @@ public:
 	bool SetVertexAttribArray(const CVertexAttribArray& attribArray, int layoutIndex);
 	bool SetTexture(const CTexture& texture, int index);
 
-	void SetActiveCamera(CCamera* camera);
-	CCamera* GetActiveCamera() const;
-
-	void AddRenderableObjects(SRenderable* renderable);
-
 	void DrawArrays(int vertexCount);
 	void DrawIndexedArrays(const CIndexBuffer& indexBuffer);
-	void DrawRenderableObjects();
+	void DrawScene(CScene* scene);
 
 	void DrawQuad();
 

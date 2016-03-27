@@ -46,7 +46,7 @@ void main(void)
 	//coeffs /= (coeffs.a + coeffs.r + coeffs.g + coeffs.b);
 	vec4 diffuseColor = vec4(0.0f, 0.0f, 0.0f, 0.0f);
 
-	if (fragPosition.w > 100.0)
+	if (fragPosition.w > 10.0)
 	{
 		diffuseColor += GetColor(diffuseTexture0, fragPosition, fragNormal) * coeffs.r;
 		diffuseColor += GetColor(diffuseTexture1, fragPosition, fragNormal) * coeffs.g;

@@ -1,3 +1,5 @@
+#pragma once
+
 #include <string>
 #include <vector>
 
@@ -27,6 +29,9 @@ struct SRenderable
 		glm::vec3 Vec3;
 		int Int;
 	};
+
+	SRenderable() = default;
+	~SRenderable() = default;
 
 	CTransform Transform;
 

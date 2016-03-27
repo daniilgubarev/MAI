@@ -2,11 +2,12 @@
 
 #include "CGameState.h"
 #include "CTerrain.h"
+#include "CScene.h"
 
 class CCubeRenderer : public CGameState
 {
 public:
-	CCubeRenderer(CGraphic* graphic, const CTerrain* terrain);
+	CCubeRenderer(CScene* scene, const CTerrain* terrain);
 	~CCubeRenderer();
 
 	bool Update(float dt) override;
@@ -22,7 +23,7 @@ private:
 
 	CTexture Texture;
 
-	std::vector<SRenderable> Cubes;
+	std::vector<SRenderable*> Cubes;
 
-	CGraphic* Graphic;
+	CScene* Scene;
 };
